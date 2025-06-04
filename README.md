@@ -1,8 +1,13 @@
 # WeVideo
+
 WED GameFi White Paper
+
 Authors: WeVideo Labs Research Team
+
 Version: v1.0 |  2025
+
 Abstract​
+
 The WED GameFi Protocol represents a groundbreaking deterministic yield system meticulously engineered and deployed on the Solana blockchain. Drawing inspiration from the robust structure of consensus algorithms, with a particular focus on Ripple's Representative Proposer Consensus Algorithm (RPCA) model, the protocol innovatively introduces a dual - token architecture consisting of WEV and WED. These tokens are governed by a set of rules that prioritize predictability, verifiability, and non - inflationary principles, ensuring long - term economic stability and user trust.​
 At the heart of the WED Protocol lies an immersive ecological simulation mechanism. Users are invited to engage in a digital ecosystem where they can plant and nurture digital trees. Through regular "watering" of these virtual trees, which involves consuming the base token WEV, users gradually accrue value in the form of WED tokens over time. This gameplay not only provides an entertaining user experience but also seamlessly integrates economic incentives, blurring the lines between gaming and decentralized finance.​
 The system's economic incentives are rigorously formalized through multiple innovative mechanisms. Smart contracts serve as the backbone, automating and enforcing the rules of token generation, consumption, and distribution. Time - gated functions add an element of anticipation and strategic planning, as certain actions and rewards are only available at specific time intervals. The alliance - based multiplier system encourages users to form collaborative guilds, where higher - level alliances enjoy enhanced yield speeds and additional benefits, promoting community building and cooperation. Moreover, the strict yield mathematics employed in the protocol ensures that token emissions are precisely calculated based on factors such as time, resource input, and contract type, maintaining a balanced and sustainable economic model.​
