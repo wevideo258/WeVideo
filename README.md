@@ -25,53 +25,92 @@ In the following sections, this paper will delve deeper into the intricate desig
    
 This protocol architecture integrates blockchain technology with a token economy model, aiming to build an incentive-compatible and sustainable ecosystem. Through the collaborative operation of base tokens, yield tokens, tree contracts, and an alliance system, it achieves symbiotic value among users, developers, and the ecosystem.
 
-2.1 Token Roles
+2.1 Token Roles：
+
 Two functionally complementary core tokens are designed to drive the economic circulation within the ecosystem, with clear divisions of labor:
 WEV (Base Token)
-Acquisition: Users earn WEV by engaging in deep interactions with WeVideo’s advertising content, such as watching full ads, completing in-ad interactive tasks, or clicking referral links. This mechanism not only provides advertisers with effective user reach but also allows users to monetize their attention as a valuable resource.
-Utility: As the universal consumable token in the WED system, WEV is essential for activating tree contracts, performing "maintenance" operations (e.g., "watering"), unlocking premium service modules, and sustaining core ecosystem functions as its operational "fuel."
+
+·Acquisition: Users earn WEV by engaging in deep interactions with WeVideo’s advertising content, such as watching full ads, completing in-ad interactive tasks, or clicking referral links. This mechanism not only provides advertisers with effective user reach but also allows users to monetize their attention as a valuable resource.
+
+·Utility: As the universal consumable token in the WED system, WEV is essential for activating tree contracts, performing "maintenance" operations (e.g., "watering"), unlocking premium service modules, and sustaining core ecosystem functions as its operational "fuel."
 WED (Deterministic Yield Token)
-Core Features: WED is a non-inflationary token with a hard supply cap of 1,000,000,000 tokens, ensuring long-term scarcity and value stability. This design mitigates dilution risks caused by excessive issuance, making it a reliable store of value.
-Economic Purpose: Beyond serving as a medium for value storage, WED incentivizes long-term participation and ecosystem contribution. Its value is expected to appreciate with growing ecosystem demand and adoption.
+
+·Core Features: WED is a non-inflationary token with a hard supply cap of 1,000,000,000 tokens, ensuring long-term scarcity and value stability. This design mitigates dilution risks caused by excessive issuance, making it a reliable store of value.
+
+·Economic Purpose: Beyond serving as a medium for value storage, WED incentivizes long-term participation and ecosystem contribution. Its value is expected to appreciate with growing ecosystem demand and adoption.
 
 2.2 Tree Contracts
+
 Tree Contracts represent an innovative core of the protocol, leveraging NFT (Non-Fungible Token) characteristics to provide users with interactive and appreciable digital assets:
 Contract Attributes
-Lifecycle Management: Each Tree Contract has a defined lifecycle, spanning creation, growth, and maturity stages—each with distinct functionalities and reward models. Upon expiration, contracts may reset or renew according to predefined rules.
-Maintenance Mechanism: Users must "water" contracts at fixed intervals by consuming WEV to sustain their operational viability. Failure to maintain regular "watering" will degrade a contract’s yield capacity or even put it into a dormant state.
-Differentiated Consumption: WEV consumption rates vary by contract type and tier. Higher-tier contracts demand more WEV but offer significantly higher WED emission efficiency, creating a risk-reward tradeoff for users.
+
+·Lifecycle Management: Each Tree Contract has a defined lifecycle, spanning creation, growth, and maturity stages—each with distinct functionalities and reward models. Upon expiration, contracts may reset or renew according to predefined rules.
+
+·Maintenance Mechanism: Users must "water" contracts at fixed intervals by consuming WEV to sustain their operational viability. Failure to maintain regular "watering" will degrade a contract’s yield capacity or even put it into a dormant state.
+
+·Differentiated Consumption: WEV consumption rates vary by contract type and tier. Higher-tier contracts demand more WEV but offer significantly higher WED emission efficiency, creating a risk-reward tradeoff for users.
 Yield Mechanism
+
 WED emissions from Tree Contracts follow a dual-factor calculation based on time and resource input:
-Emission volume is directly proportional to the contract’s active duration and the cumulative WEV spent on its maintenance.
-This design rewards users who invest more resources and maintain long-term engagement, fostering sustainable participation.
+
+·Emission volume is directly proportional to the contract’s active duration and the cumulative WEV spent on its maintenance.
+
+·This design rewards users who invest more resources and maintain long-term engagement, fostering sustainable participation.
+
 
 2.3 Alliance System
+
 The Alliance System establishes a hierarchical guild structure to encourage collaborative participation, enhancing ecosystem cohesion and activity:
 Upgrade Framework
-The system supports 20 upgrade levels, each requiring a combination of WED and WEV investments. Upgrade costs increase exponentially with tier progression, necessitating close collaboration among guild members to accumulate resources and fostering collective responsibility.
+
+·The system supports 20 upgrade levels, each requiring a combination of WED and WEV investments. Upgrade costs increase exponentially with tier progression, necessitating close collaboration among guild members to accumulate resources and fostering collective responsibility.
+
 Incentive Structure
-Yield Acceleration: Higher-level alliances enjoy significantly faster WED emission rates for their members’ Tree Contracts. For example, a Level 10 alliance might achieve 3–5x the yield speed of a Level 1 alliance, creating a strong incentive for tier advancement.
-Leadership Rewards: Alliance leaders receive additional WED dividends on top of team-wide yield bonuses, recognizing their organizational efforts and motivating proactive guild management. This mechanism drives organic growth and leadership participation, ensuring the system’s long-term vitality.
+
+·Yield Acceleration: Higher-level alliances enjoy significantly faster WED emission rates for their members’ Tree Contracts. For example, a Level 10 alliance might achieve 3–5x the yield speed of a Level 1 alliance, creating a strong incentive for tier advancement.
+
+·Leadership Rewards: Alliance leaders receive additional WED dividends on top of team-wide yield bonuses, recognizing their organizational efforts and motivating proactive guild management. This mechanism drives organic growth and leadership participation, ensuring the system’s long-term vitality.
+
 Summary
+
 The architecture creates a self-reinforcing economic loop:
-Users earn WEV through ad interactions, consume it to maintain Tree Contracts for WED yields, and reinvest WED into alliance upgrades.
-Gamified elements (e.g., contract nurturing, alliance progression) and scarce assets (fixed WED supply) drive user retention and value accumulation.
-Collaborative incentives in the Alliance System scale ecosystem participation, aligning individual goals with collective growth.
+
+·Users earn WEV through ad interactions, consume it to maintain Tree Contracts for WED yields, and reinvest WED into alliance upgrades.
+
+·Gamified elements (e.g., contract nurturing, alliance progression) and scarce assets (fixed WED supply) drive user retention and value accumulation.
+
+·Collaborative incentives in the Alliance System scale ecosystem participation, aligning individual goals with collective growth.
+
 This design balances user engagement, economic sustainability, and technological innovation, laying a foundation for decentralized ecosystem governance and value co-creation.
-4. Formal Definitions
+
+3. Formal Definitions
+
 Definition 1: Token Generation Function
-Let 
-Where is the system timestamp and         is the i-th user’s input.
+
+Let ![image](https://github.com/user-attachments/assets/36b48876-511f-4a14-802c-9c37eccf33f0)
+
+![image](https://github.com/user-attachments/assets/1bf9d946-9036-417e-9bca-c05481ea0a58)Where is the system timestamp and   ![image](https://github.com/user-attachments/assets/e4ba0637-831e-4b56-94c1-5d0694665bc1) is the i-th user’s input.
+
 Definition 2: Yield Decay Constraint
+
 Where D is tree duration in days and M is a multiplier.
-5. Tokenomics​
+
+4. Tokenomics​
+   
 The tokenomics of the WED Protocol are meticulously designed to foster a balanced, sustainable, and community-driven ecosystem. By strategically allocating token supplies and structuring token flows, the protocol aims to align incentives among users, developers, and ecosystem participants while maintaining long-term economic stability.​
+
 Supply Allocation​
+
 The total supply of WED tokens is capped at 1,000,000,000, with a carefully calibrated distribution model across three key categories:​
+
 80% for Mining and Gameplay Rewards (800,000,000 WED): This significant portion of the supply is dedicated to rewarding users actively engaged in the protocol's core activities. Through the digital tree - planting and nurturing gameplay, as well as other mining - like mechanisms tied to ecological simulation, users can earn WED tokens over time. This allocation not only incentivizes sustained user participation but also distributes tokens organically within the community, promoting a decentralized ownership structure.​
+
 10% for Ecosystem and Referral Activities: Earmarked to fuel the growth and expansion of the WED ecosystem, this portion of the supply is used to incentivize various initiatives. It supports activities such as user acquisition through referral programs, community building, and the development of complementary services and applications. By rewarding users who contribute to the ecosystem's outreach and development, the protocol encourages a vibrant and self - sustaining community.​
+
 10% for Team Treasury (Vesting Locked): Reserved for the development team, this allocation provides the necessary resources for continuous protocol improvement, maintenance, and innovation. The tokens are subject to a vesting schedule, which locks them for a predefined period. This mechanism ensures that the team has a long - term stake in the project's success while preventing premature sell - offs that could disrupt the token's market stability.​
+
 Token Flows​
+
 The movement and utilization of tokens within the WED ecosystem are governed by a set of well - defined rules designed to maintain scarcity, fairness, and economic equilibrium:​
 WEV Burn Mechanism: All WEV tokens spent by users on activities such as planting digital trees or watering them to sustain their growth are immediately transferred to a non - circulating burn pool. Once in the burn pool, these tokens are effectively removed from circulation, reducing the overall supply of WEV. This mechanism serves multiple purposes: it creates an incentive for users to engage in gameplay by making resource consumption a prerequisite for earning WED rewards, and it also helps to maintain the value of WEV by controlling its supply.​
 Conditional WED Generation: WED tokens are generated through a deterministic process that is triggered only when all predefined constraints are met. These constraints include factors such as the successful maintenance of tree contracts over a specific period, the cumulative amount of WEV consumed, and compliance with the protocol's governance rules. This conditional generation ensures that WED emissions are predictable and sustainable, preventing sudden surges in supply that could devalue the token.​
@@ -91,8 +130,11 @@ To accommodate varying player preferences and lifestyles, the WED Protocol offer
 Auto-watering Packages: Players can purchase auto-watering packages to ensure their trees are watered on schedule without manual intervention. These packages range in cost from 100 to 500 WEV, depending on the duration and coverage. Auto-watering is particularly useful for players with limited time or those managing multiple trees simultaneously, allowing them to maintain optimal yields with minimal effort.​
 Bug-catching Quests: Engaging in bug-catching quests presents an interactive way to earn additional WEV tokens. By participating in these daily quests, players can receive rewards ranging from 0.6 to 1 WEV per day. These quests not only add an element of fun to the gameplay but also encourage players to actively monitor and care for their trees, as a healthy tree is more likely to attract bugs worth catching.​
 Daily Sign-in Bonuses: To reward regular engagement, the protocol offers daily sign-in bonuses that vary in value from 0.01 to 1.8 WEV. The bonus amount scales over a 16-day period, incentivizing players to log in consistently. This mechanic not only promotes daily interaction but also provides a steady stream of additional resources, helping players to grow their digital tree portfolios over time.
-7. Alliance Protocol
+
+6. Alliance Protocol
+
 6.1 Structure​
+
 The alliance system within the WED Protocol is architected as a hierarchical, 20 - level guild structure, designed to foster collaborative growth and strategic resource management among users. This tiered system creates a clear progression path, encouraging members to work together and invest in the alliance's development for collective benefits.​
 Tiered Progression​
 The system is divided into 20 distinct levels, each representing a significant milestone in the alliance's evolution. As alliances ascend through the tiers, they unlock increasingly powerful capabilities, such as enhanced yield acceleration for members' tree contracts, exclusive access to advanced features, and higher - value rewards. This structured progression not only provides a sense of achievement but also incentivizes long - term commitment from participants.​
@@ -101,11 +143,15 @@ Alliance members play a crucial role in the system by contributing WEV tokens, t
 Leadership - Driven Upgrades​
 Alliance leadership is central to the tier - advancement process. Leaders are responsible for overseeing the strategic direction of the alliance and making key decisions regarding resource allocation and upgrade initiatives. To progress to higher levels, leaders must consume WED tokens, the protocol's yield - based token, as a form of investment. This requirement not only ensures that upgrades are driven by committed and resourceful leaders but also aligns the interests of leadership with the long - term prosperity of the entire alliance. The consumption of WED for upgrades also helps to maintain a healthy balance within the token economy, as it reduces the circulating supply of WED and contributes to its overall value stability.​
 In summary, the alliance system's structure combines a tiered progression, a member - driven resource - contribution model, and leadership - led upgrades to create a dynamic, collaborative ecosystem where users can achieve greater rewards through collective effort.
+
 6.2 Speed and Dividend Table
+
 Level	Speed	WED Required	WEV Required	Leader Reward
-1	3%	1000	—	3%
+
+1	         3%	   1000	—	3%
 10	40%	40,000	40,000	5%
 20	90%	1,900,000	1,800,000	10%
+
 6.3 Exit Rules​
 The exit rules of the WED Protocol's alliance system are carefully defined to maintain the integrity of the ecosystem, ensure fairness among participants, and discourage premature departures that could disrupt ongoing operations. These rules govern the consequences for users who choose to leave an alliance and are designed to align individual incentives with the long - term sustainability of the community.​
 Forfeiture of Cycle Bonuses​
