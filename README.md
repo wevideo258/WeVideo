@@ -12,14 +12,19 @@ The WED GameFi Protocol represents a groundbreaking deterministic yield system m
 At the heart of the WED Protocol lies an immersive ecological simulation mechanism. Users are invited to engage in a digital ecosystem where they can plant and nurture digital trees. Through regular "watering" of these virtual trees, which involves consuming the base token WEV, users gradually accrue value in the form of WED tokens over time. This gameplay not only provides an entertaining user experience but also seamlessly integrates economic incentives, blurring the lines between gaming and decentralized finance.​
 The system's economic incentives are rigorously formalized through multiple innovative mechanisms. Smart contracts serve as the backbone, automating and enforcing the rules of token generation, consumption, and distribution. Time - gated functions add an element of anticipation and strategic planning, as certain actions and rewards are only available at specific time intervals. The alliance - based multiplier system encourages users to form collaborative guilds, where higher - level alliances enjoy enhanced yield speeds and additional benefits, promoting community building and cooperation. Moreover, the strict yield mathematics employed in the protocol ensures that token emissions are precisely calculated based on factors such as time, resource input, and contract type, maintaining a balanced and sustainable economic model.​
 This paper delves deep into the WED Protocol, presenting comprehensive formal definitions of its key concepts, detailed descriptions of its architectural components, in - depth analysis of its economic logic, and simulation - based forecasts. These elements collectively aim to provide a solid foundation for the secure and scalable deployment of the WED Protocol as a leading Web3 GameFi infrastructure. By bridging the gap between traditional gaming and decentralized finance, the WED Protocol paves the way for a new era of blockchain - based digital economies, where users can both enjoy engaging gameplay and participate in a transparent, rewarding economic ecosystem.​
+
 1. Introduction​
+   
 The blockchain landscape has undergone a remarkable transformation, evolving far beyond its origins as a mere financial infrastructure. Today, it has emerged as a versatile platform enabling the convergence of diverse sectors such as gaming, advertising, and user-generated economies. This evolution has given rise to a new paradigm where blockchain technology serves as the foundation for creating immersive, interactive, and economically rewarding ecosystems. Amidst this dynamic backdrop, the WED GameFi Protocol emerges with a clear and ambitious goal: to offer gameplay experiences that are not only engaging but also deeply aligned with long-term user incentives.​
 At its core, WED is intricately linked to WeVideo's existing ad-driven WEV economy. While the WEV economy focuses on rewarding users for engaging with advertisements, WED builds upon this foundation as a second-order layer. It ingeniously transforms the simple act of ad engagement into a rich, yield-based gaming activity. In this innovative system, users no longer just passively interact with ads; instead, their interactions become the fuel that powers a virtual economy where they can plant, nurture, and harvest digital assets in the form of WED tokens. This seamless integration of advertising, gaming, and finance creates a unique value proposition, offering users the opportunity to earn rewards while enjoying an interactive gaming experience.​
 Against the backdrop of an increasingly complex and competitive blockchain ecosystem, the need for secure and verifiable systems for token distribution has become paramount. In response, the WED Protocol delves into the design of a deterministic token distribution mechanism that draws inspiration from consensus logic. Consensus algorithms, the bedrock of blockchain security and trust, ensure that all network participants agree on the state of the blockchain. By emulating these principles, WED aims to create a token distribution system that is not only predictable but also verifiable by all users within the ecosystem.​
 To achieve this, the WED Protocol employs a suite of sophisticated mechanisms. Token burn mechanisms play a crucial role in maintaining token scarcity and value stability. By periodically removing tokens from circulation, the protocol can control supply and prevent inflation, ensuring that the value of WED tokens remains robust over time. Alliance cooperation serves as another key pillar, fostering a sense of community and collaboration among users. Through the formation of alliances, users can pool their resources, share expertise, and unlock higher rewards, creating a virtuous cycle of growth and engagement. Additionally, the protocol's yields are mathematically bounded, meaning that token emissions are precisely calculated based on predefined parameters such as time, resource input, and contract type. This strict mathematical framework ensures that the token distribution process is transparent, fair, and resistant to manipulation, providing users with the confidence that they are participating in a secure and reliable ecosystem.​
 In the following sections, this paper will delve deeper into the intricate design, technical implementation, and economic implications of the WED Protocol. By exploring these aspects in detail, we aim to provide a comprehensive understanding of how this innovative system is poised to revolutionize the GameFi space and contribute to the broader development of blockchain-based economies.
+
 2. Protocol Architecture
+   
 This protocol architecture integrates blockchain technology with a token economy model, aiming to build an incentive-compatible and sustainable ecosystem. Through the collaborative operation of base tokens, yield tokens, tree contracts, and an alliance system, it achieves symbiotic value among users, developers, and the ecosystem.
+
 2.1 Token Roles
 Two functionally complementary core tokens are designed to drive the economic circulation within the ecosystem, with clear divisions of labor:
 WEV (Base Token)
@@ -28,6 +33,7 @@ WEV (Base Token)
 WED (Deterministic Yield Token)
 Core Features: WED is a non-inflationary token with a hard supply cap of 1,000,000,000 tokens, ensuring long-term scarcity and value stability. This design mitigates dilution risks caused by excessive issuance, making it a reliable store of value.
 Economic Purpose: Beyond serving as a medium for value storage, WED incentivizes long-term participation and ecosystem contribution. Its value is expected to appreciate with growing ecosystem demand and adoption.
+
 2.2 Tree Contracts
 Tree Contracts represent an innovative core of the protocol, leveraging NFT (Non-Fungible Token) characteristics to provide users with interactive and appreciable digital assets:
 Contract Attributes
@@ -38,6 +44,7 @@ Yield Mechanism
 WED emissions from Tree Contracts follow a dual-factor calculation based on time and resource input:
 Emission volume is directly proportional to the contract’s active duration and the cumulative WEV spent on its maintenance.
 This design rewards users who invest more resources and maintain long-term engagement, fostering sustainable participation.
+
 2.3 Alliance System
 The Alliance System establishes a hierarchical guild structure to encourage collaborative participation, enhancing ecosystem cohesion and activity:
 Upgrade Framework
@@ -51,13 +58,13 @@ The architecture creates a self-reinforcing economic loop:
 Gamified elements (e.g., contract nurturing, alliance progression) and scarce assets (fixed WED supply) drive user retention and value accumulation.
 Collaborative incentives in the Alliance System scale ecosystem participation, aligning individual goals with collective growth.
 This design balances user engagement, economic sustainability, and technological innovation, laying a foundation for decentralized ecosystem governance and value co-creation.
-3. Formal Definitions
+4. Formal Definitions
 Definition 1: Token Generation Function
 Let 
 Where is the system timestamp and         is the i-th user’s input.
 Definition 2: Yield Decay Constraint
 Where D is tree duration in days and M is a multiplier.
-4. Tokenomics​
+5. Tokenomics​
 The tokenomics of the WED Protocol are meticulously designed to foster a balanced, sustainable, and community-driven ecosystem. By strategically allocating token supplies and structuring token flows, the protocol aims to align incentives among users, developers, and ecosystem participants while maintaining long-term economic stability.​
 Supply Allocation​
 The total supply of WED tokens is capped at 1,000,000,000, with a carefully calibrated distribution model across three key categories:​
@@ -70,7 +77,7 @@ WEV Burn Mechanism: All WEV tokens spent by users on activities such as planting
 Conditional WED Generation: WED tokens are generated through a deterministic process that is triggered only when all predefined constraints are met. These constraints include factors such as the successful maintenance of tree contracts over a specific period, the cumulative amount of WEV consumed, and compliance with the protocol's governance rules. This conditional generation ensures that WED emissions are predictable and sustainable, preventing sudden surges in supply that could devalue the token.​
 On - Chain Yield and No Pre - minting: In line with the protocol's commitment to transparency and decentralization, there is no pre - minting of WED tokens. All WED tokens are generated on - chain through the established gameplay and mining mechanisms. This approach eliminates the potential for unfair advantages or central control over the initial token distribution, ensuring that every user has an equal opportunity to participate in the WED economy from its inception.​
 Overall, the tokenomics model of the WED Protocol represents a carefully crafted balance between rewarding user participation, fostering ecosystem growth, and maintaining economic stability, laying a solid foundation for the protocol's long - term success.​
-5. Gameplay Mechanics​
+6. Gameplay Mechanics​
 The WED Protocol's gameplay mechanics are designed to create an engaging, strategic, and rewarding experience, seamlessly integrating tokenomics with ecological simulation. Players navigate a virtual ecosystem by managing digital trees, each with unique characteristics, maintenance requirements, and automation options.​
 5.1 Tree Types​
 The game features a diverse range of digital tree types, each with distinct investment requirements and yield rates, allowing players to tailor their strategies based on risk tolerance and resource availability:​
@@ -84,7 +91,7 @@ To accommodate varying player preferences and lifestyles, the WED Protocol offer
 Auto-watering Packages: Players can purchase auto-watering packages to ensure their trees are watered on schedule without manual intervention. These packages range in cost from 100 to 500 WEV, depending on the duration and coverage. Auto-watering is particularly useful for players with limited time or those managing multiple trees simultaneously, allowing them to maintain optimal yields with minimal effort.​
 Bug-catching Quests: Engaging in bug-catching quests presents an interactive way to earn additional WEV tokens. By participating in these daily quests, players can receive rewards ranging from 0.6 to 1 WEV per day. These quests not only add an element of fun to the gameplay but also encourage players to actively monitor and care for their trees, as a healthy tree is more likely to attract bugs worth catching.​
 Daily Sign-in Bonuses: To reward regular engagement, the protocol offers daily sign-in bonuses that vary in value from 0.01 to 1.8 WEV. The bonus amount scales over a 16-day period, incentivizing players to log in consistently. This mechanic not only promotes daily interaction but also provides a steady stream of additional resources, helping players to grow their digital tree portfolios over time.
-6. Alliance Protocol
+7. Alliance Protocol
 6.1 Structure​
 The alliance system within the WED Protocol is architected as a hierarchical, 20 - level guild structure, designed to foster collaborative growth and strategic resource management among users. This tiered system creates a clear progression path, encouraging members to work together and invest in the alliance's development for collective benefits.​
 Tiered Progression​
@@ -106,7 +113,7 @@ When a user decides to leave an alliance, they automatically forfeit all remaini
 Non - Refund Policy for Contributed Tokens​
 The protocol strictly enforces a no - refund policy for any WEV or WED tokens contributed to the alliance. Once users contribute these tokens as part of their membership obligations or to support alliance upgrades, they are considered committed resources. This policy serves multiple purposes: it safeguards the financial stability of the alliance by preventing sudden withdrawals that could deplete its resources; it encourages users to make informed decisions before joining an alliance, as they understand that their token contributions are non - reversible; and it fosters a sense of long - term commitment, as members are less likely to leave if they have already invested significant resources. The non - refund rule also aligns with the overall economic design of the protocol, where token flows are carefully managed to maintain a balanced and sustainable ecosystem.​
 In essence, the exit rules in the WED alliance system strike a balance between protecting the interests of the remaining members and the alliance itself, while also reinforcing the importance of commitment and responsibility within the community. These rules help to create a stable and reliable environment where users can confidently participate in collaborative activities, knowing that the system is structured to support long - term success.
-7. Yield Simulation
+8. Yield Simulation
 Based on the WED output calculations from tree-planting activities, the protocol’s yield simulation models project key performance metrics that underscore its economic viability and incentive structure. These forecasts are derived from deterministic algorithms governing token generation, resource consumption, and alliance-level multipliers.
 Key Projections
 1.Break-Even Timeline (Levels 1–3)
@@ -132,7 +139,7 @@ Simulation Methodology
 Validation: Simulations are calibrated against on-chain stress tests, ensuring alignment with Solana’s transaction throughput and smart contract execution guarantees.
 Conclusion
 The yield projections highlight a tiered reward structure that balances accessibility for new users (short break-even periods at lower levels) with significant upside for strategic, long-term participants (280% ROI at higher tiers). The aggressive WEV burn rate further solidifies the protocol’s deflationary economics, positioning WED as a scarce asset within a self-reinforcing gaming-finance ecosystem. These simulations underpin WED’s viability as a scalable Web3 infrastructure, where gameplay, advertising, and tokenomics converge to create sustainable user incentives.
-8. Security Considerations
+9. Security Considerations
 The WED Protocol prioritizes robust security measures to safeguard user assets, maintain data integrity, and ensure trust in its deterministic yield mechanisms. Leveraging Solana’s high-performance blockchain infrastructure, the protocol implements multi-layered safeguards designed to mitigate vulnerabilities and enforce transparency.
 1. Anti-Replay Mechanisms for Watering Events
 Mechanism: All watering transactions (WEV consumption for tree maintenance) are time-stamped and cryptographically linked to specific yield intervals (e.g., 4-hour cycles).
