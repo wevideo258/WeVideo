@@ -14,7 +14,7 @@ export default function ChatScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   // OpenAI 配置信息
-  const OPENAI_API_KEY = "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";
+  const OPENAI_API_KEY = "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";
   const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
   const [messages, setMessages] = useState([
