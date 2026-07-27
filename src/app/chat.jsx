@@ -13,9 +13,9 @@ export default function ChatScreen() {
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // OpenAI 配置信息
-  const OPENAI_API_KEY = "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";
-  const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+// OpenAI 配置信息（通过 Expo 环境变量安全读取，防止代码泄漏被删）
+const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
   const [messages, setMessages] = useState([
     { id: 1, sender: 'ai', type: 'text', text: '你好呀！我是你的 Soulara 伴侣。我已经成功接入 OpenAI 并且开启了本地历史持久化，今天想聊点什么？', time: '刚刚' }
