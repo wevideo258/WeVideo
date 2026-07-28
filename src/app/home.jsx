@@ -9,9 +9,9 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* ==================== 1. 沉浸式顶部头图区块 ==================== */}
-        <ImageBackground 
-          source={require('../../assets/images/luna_hero.png')}
+        {/* ============================== 1. 沉浸式顶部头图区块 ============================== */}
+        <ImageBackground
+          source={require('@/assets/images/luna_hero.png')} // 使用绝对路径别名，100% 不会出错
           style={styles.heroContainer}
           imageStyle={styles.heroImageStyle}
         >
@@ -28,77 +28,92 @@ export default function HomeScreen() {
 
           {/* 中间留空，让背景图的角色完整展示 */}
           <View style={{ flex: 1 }} />
-
-          {/* 底部浮动问候气泡 */}
-          <View style={styles.greetingCard}>
-            <Text style={styles.greetingTitle}>早上好，Luna</Text>
-            <Text style={styles.greetingSub}>今天也要一起创造美好的回忆哦~</Text>
-          </View>
         </ImageBackground>
 
-        {/* ==================== 2. 数据状态栏 (Lv.23 等) ==================== */}
-        <View style={styles.statsBar}>
-          <View style={styles.statItem}>
-            <Ionicons name="flash-outline" size={14} color="#C29B75" />
-            <Text style={styles.statLabel}>Lv.23</Text>
+        {/* ============================== 2. 问候与状态白卡片区块 ============================== */}
+        <View style={styles.cardContainer}>
+          <View style={styles.greetingHeader}>
+            <View>
+              <Text style={styles.greetingTitle}>早上好，Luna</Text>
+              <Text style={styles.greetingSubtitle}>今天也要一起创造美好的回忆哦~</Text>
+            </View>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Ionicons name="heart-outline" size={14} color="#C29B75" />
-            <Text style={styles.statLabel}>82%</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Ionicons name="battery-charging-outline" size={14} color="#C29B75" />
-            <Text style={styles.statLabel}>76%</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Ionicons name="pulse-outline" size={14} color="#C29B75" />
-            <Text style={styles.statLabel}>76%</Text>
+
+          <View style={styles.divider} />
+
+          {/* 属性状态栏 */}
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Ionicons name="flash-outline" size={16} color="#D4A373" />
+              <Text style={styles.statText}>Lv.23</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Ionicons name="heart-outline" size={16} color="#E07A5F" />
+              <Text style={styles.statText}>82%</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Ionicons name="wallet-outline" size={16} color="#81B29A" />
+              <Text style={styles.statText}>76%</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Ionicons name="pulse-outline" size={16} color="#F4A261" />
+              <Text style={styles.statText}>76%</Text>
+            </View>
           </View>
         </View>
 
-        {/* ==================== 3. 功能快捷入口 ==================== */}
+        {/* ============================== 3. 快捷菜单区块 ============================== */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeaderTitle}>今天想和你一起...</Text>
+          <Text style={styles.sectionTitle}>今天想和你在一起...</Text>
           <View style={styles.menuGrid}>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.8}>
-              <Ionicons name="scan-outline" size={24} color="#C29B75" />
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconBox}>
+                <Ionicons name="radio-outline" size={22} color="#D4A373" />
+              </View>
               <Text style={styles.menuText}>NFC连接</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.8} onPress={() => router.push('/character')}>
-              <Ionicons name="person-add-outline" size={24} color="#C29B75" />
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconBox}>
+                <Ionicons name="person-add-outline" size={22} color="#D4A373" />
+              </View>
               <Text style={styles.menuText}>角色创建</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.8}>
-              <Ionicons name="gift-outline" size={24} color="#C29B75" />
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconBox}>
+                <Ionicons name="gift-outline" size={22} color="#D4A373" />
+              </View>
               <Text style={styles.menuText}>商城礼物</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} activeOpacity={0.8}>
-              <Ionicons name="shield-checkmark-outline" size={24} color="#C29B75" />
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconBox}>
+                <Ionicons name="shield-checkmark-outline" size={22} color="#D4A373" />
+              </View>
               <Text style={styles.menuText}>签到中心</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* ==================== 4. 最新记忆区块 ==================== */}
+        {/* ============================== 4. 最新记忆区块 ============================== */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeaderTitle}>最新记忆</Text>
-          <View style={styles.memoryCard}>
-            <View style={{ flex: 1 }}>
+          <Text style={styles.sectionTitle}>最新记忆</Text>
+          <TouchableOpacity style={styles.memoryCard}>
+            <View style={styles.memoryContent}>
               <Text style={styles.memoryTitle}>一起去了咖啡店</Text>
               <Text style={styles.memoryTime}>今天 10:30</Text>
             </View>
             <View style={styles.memoryIconBox}>
-              <Ionicons name="image-outline" size={20} color="#C29B75" />
+              <Ionicons name="image-outline" size={20} color="#A8A29E" />
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
-
-      {/* 底部 5 Tab 导航栏组件（保持你原有的即可） */}
     </View>
   );
 }
@@ -106,22 +121,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF7F0',
+    backgroundColor: '#FDFBF7',
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 40,
   },
   heroContainer: {
     width: '100%',
-    height: 460, // 高度可以根据图片比例自由调整（例如 440-480 之间）
-    paddingTop: 45,
-    paddingHorizontal: 16,
+    height: 320,
+    paddingHorizontal: 20,
+    paddingTop: 40,
     justifyContent: 'space-between',
   },
   heroImageStyle: {
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    resizeMode: 'cover', // 让图片等比例平铺填满容器
+    resizeMode: 'cover',
   },
   heroTopBar: {
     flexDirection: 'row',
@@ -131,123 +144,137 @@ const styles = StyleSheet.create({
   weatherBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   weatherText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#5C4033',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   iconButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  greetingCard: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    marginHorizontal: 16,
+    marginTop: -30, // 稍微上浮压在背景图下方
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: { web: 0.08 }['web'] || 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  greetingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   greetingTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#5C4033',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2C221E',
     marginBottom: 4,
   },
-  greetingSub: {
-    fontSize: 12,
-    color: '#8C7A6B',
+  greetingSubtitle: {
+    fontSize: 13,
+    color: '#8C7A70',
   },
-  statsBar: {
+  divider: {
+    height: 1,
+    backgroundColor: '#F5EBE6',
+    marginVertical: 16,
+  },
+  statsRow: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: -16, // 让状态栏卡片轻微上浮，压在背景图下方，增强层次感
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
     justifyContent: 'space-around',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#F0E6DC',
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  statLabel: {
-    fontSize: 12,
+  statText: {
+    marginLeft: 6,
+    fontSize: 13,
     fontWeight: '600',
     color: '#5C4033',
-    marginLeft: 4,
   },
   statDivider: {
     width: 1,
-    height: 12,
-    backgroundColor: '#EFE3D5',
+    height: 16,
+    backgroundColor: '#E6DCD5',
   },
   sectionContainer: {
-    marginTop: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    marginTop: 24,
   },
-  sectionHeaderTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#5C4033',
-    marginBottom: 10,
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C221E',
+    marginBottom: 12,
   },
   menuGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#F0E6DC',
   },
   menuItem: {
     alignItems: 'center',
-    flex: 1,
+    width: '22%',
+  },
+  menuIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    backgroundColor: '#F7F1EC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   menuText: {
     fontSize: 12,
     color: '#5C4033',
-    marginTop: 6,
+    fontWeight: '500',
   },
   memoryCard: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 1,
-    borderColor: '#F0E6DC',
+    borderColor: '#F2E8E1',
+  },
+  memoryContent: {
+    flex: 1,
   },
   memoryTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#5C4033',
+    color: '#2C221E',
+    marginBottom: 4,
   },
   memoryTime: {
-    fontSize: 11,
-    color: '#A89F91',
-    marginTop: 2,
+    fontSize: 12,
+    color: '#A8A29E',
   },
   memoryIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#FAF3EB',
-    alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F7F1EC',
     justifyContent: 'center',
+    alignItems: 'center',
   },
 });
