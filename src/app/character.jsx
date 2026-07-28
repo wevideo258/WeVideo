@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { calculateSoulMood } from '../engine/moodEngine';
 
 export default function CharacterScreen() {
   const router = useRouter();
@@ -9,6 +10,23 @@ export default function CharacterScreen() {
   const [charStep, setCharStep] = useState(1);
   const [selectedStyle, setSelectedStyle] = useState('写实风');
   const [selectedSize, setSelectedSize] = useState('8cm');
+
+  // 情绪状态机数据管理
+  const [soulMood, setSoulMood] = useState({
+    mood: '开心',
+    greeting: '你好呀！很高兴能成为你的 Soulara 伴侣~',
+    color: '#FFD700',
+    icon: 'sparkles'
+  });
+
+  // 页面加载时自动计算当前灵魂心情
+  useEffect(() => {
+    async function initMood() {
+      const moodResult = await calculateSoulMood();
+      setSoulMood(moodResult);
+    }
+    initMood();
+  }, []);
 
   // 模拟角色档案数据（对齐 PRD-02 P13 规范）
   const character = {
@@ -31,11 +49,25 @@ export default function CharacterScreen() {
   return (
     <View style={styles.container}>
       
-      {/* ================= 01 创建首页 (融合 P13 灵魂详情看板) ================= */}
+      {/* ================= 01 创建首页 (融合 P13 灵魂详情看板与情绪状态机) ================= */}
       {charStep === 1 && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <Text style={styles.headerTitle}>创建与陪伴中心</Text>
           <Text style={styles.headerSub}>上传照片生成专属 3D 伴侣，或管理您的灵魂档案</Text>
+
+          {/* 今日动态心情看板 (接入 Mood Engine) */}
+          <View style={styles.moodCard}>
+            <View style={[styles.moodEmojiBox, { backgroundColor: (soulMood.color || '#FFD700') + '33' }]}>
+              <Ionicons name={soulMood.icon || 'sparkles'} size={20} color={soulMood.color || '#FFD700'} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.moodTitle}>当前灵魂状态：</Text>
+                <Text style={[styles.moodValueText, { color: soulMood.color || '#FFD700' }]}>{soulMood.mood}</Text>
+              </View>
+              <Text style={styles.moodDesc} numberOfLines={1}>“{soulMood.greeting}”</Text>
+            </View>
+          </View>
 
           {/* 灵魂主身份与亲密度看板 (P13 规范融合) */}
           <View style={styles.mainCard}>
@@ -365,7 +397,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FBF7F0' },
   scrollContent: { paddingHorizontal: 20, paddingTop: 50, paddingBottom: 90 },
   headerTitle: { fontSize: 22, fontWeight: '700', color: '#5C4033', marginBottom: 4 },
-  headerSub: { fontSize: 13, color: '#8C7A6B', marginBottom: 20 },
+  headerSub: { fontSize: 13, color: '#8C7A6B', marginBottom: 16 },
+  
+  /* 情绪看板卡片样式 */
+  moodCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 16, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: '#F0E6DC' },
+  moodEmojiBox: { width: 38, height: 38, borderRadius: 19, justifyContent: 'center', alignItems: 'center' },
+  moodTitle: { fontSize: 12, color: '#8C7A6B' },
+  moodValueText: { fontSize: 13, fontWeight: 'bold' },
+  moodDesc: { fontSize: 12, color: '#5C4033', marginTop: 2 },
+
   mainCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#F0E6DC' },
   renderPlaceholder: { width: '100%', height: 140, backgroundColor: '#FAF3EB', borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 12, borderWidth: 1, borderColor: '#EFE3D5' },
   renderText: { fontSize: 13, color: '#8C7A6B', marginTop: 8 },
