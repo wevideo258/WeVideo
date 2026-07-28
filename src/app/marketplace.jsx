@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import CustomTabBar from '../components/CustomTabBar'; // 确保路径正确
+import CustomTabBar from '../components/CustomTabBar';
 
 export default function MarketplaceScreen() {
   const router = useRouter();
@@ -10,10 +10,10 @@ export default function MarketplaceScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* ============================== 1. 顶部标题栏 ============================== */}
+        {/* ============================== 1. 顶部标题栏（带购物车跳转） ============================== */}
         <View style={styles.headerBar}>
           <Text style={styles.headerTitle}>Marketplace</Text>
-          <TouchableOpacity style={styles.cartButton}>
+          <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
             <Ionicons name="cart-outline" size={20} color="#5C4033" />
           </TouchableOpacity>
         </View>
@@ -36,7 +36,7 @@ export default function MarketplaceScreen() {
           <View style={styles.bannerTextContent}>
             <Text style={styles.bannerTag}>新品上线</Text>
             <Text style={styles.bannerTitle}>Luna的探险套装</Text>
-            <TouchableOpacity style={styles.bannerButton}>
+            <TouchableOpacity style={styles.bannerButton} onPress={() => router.push('/product-detail')}>
               <Text style={styles.bannerButtonText}>立即查看</Text>
             </TouchableOpacity>
           </View>
@@ -45,30 +45,30 @@ export default function MarketplaceScreen() {
           </View>
         </View>
 
-        {/* ============================== 4. 分类快捷导航 ============================== */}
+        {/* ============================== 4. 分类快捷导航（带真实跳转） ============================== */}
         <View style={styles.categoryGrid}>
-          <TouchableOpacity style={styles.categoryItem}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/character-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="person-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>角色商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/accessories-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="shirt-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>配件商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/gift-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="gift-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>礼物商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/limited-activity')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="time-outline" size={20} color="#D4A373" />
             </View>
@@ -76,17 +76,17 @@ export default function MarketplaceScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ============================== 5. 精选推荐区块 ============================== */}
+        {/* ============================== 5. 精选推荐区块（点击商品跳转详情） ============================== */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>精选推荐</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/product-list')}>
               <Text style={styles.seeMoreText}>查看全部 &gt;</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.recommendGrid}>
-            <TouchableOpacity style={styles.productCard}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
@@ -94,7 +94,7 @@ export default function MarketplaceScreen() {
               <Text style={styles.productPrice}>💎 1,280</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.productCard}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
@@ -102,7 +102,7 @@ export default function MarketplaceScreen() {
               <Text style={styles.productPrice}>💎 680</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.productCard}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
@@ -114,7 +114,7 @@ export default function MarketplaceScreen() {
 
       </ScrollView>
 
-      {/* 确保所有子页面底部都挂载自定义导航栏 */}
+      {/* 底部导航栏 */}
       <CustomTabBar />
     </View>
   );
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDFBF7',
   },
   scrollContent: {
-    paddingBottom: 90, // 底部预留高度，防止内容被导航栏遮挡
+    paddingBottom: 90,
   },
   headerBar: {
     flexDirection: 'row',
