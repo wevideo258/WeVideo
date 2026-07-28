@@ -11,7 +11,7 @@ export default function HomeScreen() {
         
         {/* ==================== 1. 沉浸式顶部头图区块 ==================== */}
         <ImageBackground 
-          source={require('../assets/images/luna_hero.png')} // 引入本地图片
+          source={require('../../assets/images/luna_hero.png')} // 引入本地图片
           style={styles.heroContainer}
           imageStyle={styles.heroImageStyle}
         >
