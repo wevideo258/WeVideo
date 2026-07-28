@@ -10,6 +10,16 @@ export default function CharacterScreen() {
   const [selectedStyle, setSelectedStyle] = useState('写实风');
   const [selectedSize, setSelectedSize] = useState('8cm');
 
+  // 模拟角色档案数据（对齐 PRD-02 P13 规范）
+  const character = {
+    name: 'Luna',
+    level: 7,
+    title: '永恒',
+    currentPoints: 56000,
+    nextThreshold: 70000,
+    intimacyScore: 68, // 68% 亲密度
+  };
+
   const tabs = [
     { name: '首页', route: '/home', icon: 'home-outline' },
     { name: '创建角色', route: '/character', icon: 'people' },
@@ -21,19 +31,75 @@ export default function CharacterScreen() {
   return (
     <View style={styles.container}>
       
-      {/* ================= 01 创建首页 ================= */}
+      {/* ================= 01 创建首页 (融合 P13 灵魂详情看板) ================= */}
       {charStep === 1 && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <Text style={styles.headerTitle}>创建自己的 3D 手办</Text>
-          <Text style={styles.headerSub}>上传照片，生成专属 3D 陪伴伙伴</Text>
+          <Text style={styles.headerTitle}>创建与陪伴中心</Text>
+          <Text style={styles.headerSub}>上传照片生成专属 3D 伴侣，或管理您的灵魂档案</Text>
 
+          {/* 灵魂主身份与亲密度看板 (P13 规范融合) */}
           <View style={styles.mainCard}>
             <View style={styles.renderPlaceholder}>
-              <Ionicons name="cube-outline" size={48} color="#C29B75" />
+              <Ionicons name="cube-outline" size={44} color="#C29B75" />
               <Text style={styles.renderText}>Luna 3D 模型渲染位</Text>
             </View>
+
+            {/* 等级与亲密度信息 */}
+            <View style={styles.charStatusBox}>
+              <View style={styles.charInfoRow}>
+                <Text style={styles.charNameText}>{character.name}</Text>
+                <View style={styles.levelBadge}>
+                  <Text style={styles.levelBadgeText}>Lv.{character.level} {character.title}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.progressInfoRow}>
+                <Text style={styles.progressText}>成长积分：{character.currentPoints} / {character.nextThreshold}</Text>
+                <Text style={styles.progressText}>亲密度 {character.intimacyScore}%</Text>
+              </View>
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, { width: `${(character.currentPoints / character.nextThreshold) * 100}%` }]} />
+              </View>
+            </View>
+
             <TouchableOpacity style={styles.primaryBtn} onPress={() => setCharStep(2)}>
-              <Text style={styles.primaryBtnText}>开始创建</Text>
+              <Text style={styles.primaryBtnText}>开始创建新手办</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* 四大核心陪伴入口 (对齐 PRD-02 P13 快速入口) */}
+          <Text style={styles.sectionTitle}>灵魂陪伴快捷入口</Text>
+          <View style={styles.quickAccessGrid}>
+            <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/chat')}>
+              <View style={[styles.quickIconBox, { backgroundColor: '#FCE7F3' }]}>
+                <Ionicons name="chatbubbles" size={20} color="#D4A373" />
+              </View>
+              <Text style={styles.quickCardTitle}>实时对话</Text>
+              <Text style={styles.quickCardSub}>与 Luna 交流</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/memory')}>
+              <View style={[styles.quickIconBox, { backgroundColor: '#F2E8E1' }]}>
+                <Ionicons name="book" size={20} color="#C29B75" />
+              </View>
+              <Text style={styles.quickCardTitle}>灵魂记忆</Text>
+              <Text style={styles.quickCardSub}>相册与时间轴</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/schedule')}>
+              <View style={[styles.quickIconBox, { backgroundColor: '#FAF3EB' }]}>
+                <Ionicons name="calendar" size={20} color="#81B29A" />
+              </View>
+              <Text style={styles.quickCardTitle}>灵魂日程</Text>
+              <Text style={styles.quickCardSub}>早安晚安仪式</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/settings')}>
+              <View style={[styles.quickIconBox, { backgroundColor: '#F4F1EA' }]}>
+                <Ionicons name="options" size={20} color="#5C4033" />
+              </View>
+              <Text style={styles.quickCardTitle}>关系设置</Text>
+              <Text style={styles.quickCardSub}>性格与外观</Text>
             </TouchableOpacity>
           </View>
 
@@ -216,7 +282,7 @@ export default function CharacterScreen() {
 
           <View style={styles.mainCard}>
             <Text style={styles.cardTitle}>专属 3D 手办</Text>
-            <Text style={styles.cardSub}>{selectedStyle} · {selectedSize} · 包含：模型生体 + 底座 + 基础包装</Text>
+            <Text style={styles.cardSub}>{selectedStyle} · {selectedSize} · 包含：模型实体 + 底座 + 基础包装</Text>
             <Text style={styles.priceText}>¥299.00</Text>
           </View>
 
@@ -301,8 +367,22 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 22, fontWeight: '700', color: '#5C4033', marginBottom: 4 },
   headerSub: { fontSize: 13, color: '#8C7A6B', marginBottom: 20 },
   mainCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, alignItems: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#F0E6DC' },
-  renderPlaceholder: { width: '100%', height: 180, backgroundColor: '#FAF3EB', borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 16, borderWidth: 1, borderColor: '#EFE3D5' },
+  renderPlaceholder: { width: '100%', height: 140, backgroundColor: '#FAF3EB', borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 12, borderWidth: 1, borderColor: '#EFE3D5' },
   renderText: { fontSize: 13, color: '#8C7A6B', marginTop: 8 },
+  charStatusBox: { width: '100%', marginBottom: 14 },
+  charInfoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  charNameText: { fontSize: 16, fontWeight: 'bold', color: '#5C4033' },
+  levelBadge: { backgroundColor: '#FAF3EB', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: '#D4AF37' },
+  levelBadgeText: { fontSize: 10, color: '#D4AF37', fontWeight: '600' },
+  progressInfoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  progressText: { fontSize: 11, color: '#8C7A6B' },
+  progressBarBg: { height: 5, backgroundColor: '#F0E6DC', borderRadius: 3, overflow: 'hidden', width: '100%' },
+  progressBarFill: { height: '100%', backgroundColor: '#D4AF37', borderRadius: 3 },
+  quickAccessGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
+  quickCard: { width: '48%', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#F0E6DC' },
+  quickIconBox: { width: 34, height: 34, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  quickCardTitle: { fontSize: 13, fontWeight: 'bold', color: '#5C4033', marginBottom: 2 },
+  quickCardSub: { fontSize: 10, color: '#8C7A6B' },
   primaryBtn: { width: '100%', backgroundColor: '#D4AF37', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   primaryBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   gridContainer: { flexDirection: 'row', justifyContent: 'space-between' },
