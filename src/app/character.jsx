@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker'; // ✅ 【修复1】补上了这一行导入
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { calculateSoulMood } from '../engine/moodEngine';
 
 export default function CharacterScreen() {
@@ -10,6 +11,24 @@ export default function CharacterScreen() {
   const [charStep, setCharStep] = useState(1);
   const [selectedStyle, setSelectedStyle] = useState('写实风');
   const [selectedSize, setSelectedSize] = useState('8cm');
+  // 新增：保存用户选中的图片 URI
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // 新增：唤起相册选图的函数
+  const pickImage = async () => {
+    // 请求相册权限并打开相册
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+      setCharStep(3); // 选择成功后自动跳到风格选择
+    }
+  };
 
   // 情绪状态机数据管理
   const [soulMood, setSoulMood] = useState({
@@ -165,10 +184,21 @@ export default function CharacterScreen() {
               <Ionicons name="person" size={40} color="#C29B75" />
               <Text style={styles.cardSub}>正面照参考</Text>
             </View>
-            <TouchableOpacity style={[styles.mainCard, { width: '48%', height: 160, marginBottom: 0, backgroundColor: '#FAF3EB', borderStyle: 'dashed' }]} onPress={() => setCharStep(3)}>
-              <Ionicons name="camera-outline" size={32} color="#C29B75" />
-              <Text style={[styles.cardSub, { marginTop: 8 }]}>点击上传照片</Text>
-              <Text style={{ fontSize: 10, color: '#A89F91' }}>支持 JPG / PNG 格式</Text>
+            
+            {/* ✅ 【修复2】已将 onPress={() => pickImage} 改为正确的 onPress={pickImage}，并顺便预览已选图片 */}
+            <TouchableOpacity 
+              style={[styles.mainCard, { width: '48%', height: 160, marginBottom: 0, backgroundColor: '#FAF3EB', borderStyle: 'dashed', overflow: 'hidden' }]} 
+              onPress={pickImage}
+            >
+              {selectedImage ? (
+                <Image source={{ uri: selectedImage }} style={{ width: '100%', height: '100%', resizeMode: 'cover' }} />
+              ) : (
+                <>
+                  <Ionicons name="camera-outline" size={32} color="#C29B75" />
+                  <Text style={[styles.cardSub, { marginTop: 8 }]}>点击上传照片</Text>
+                  <Text style={{ fontSize: 10, color: '#A89F91' }}>支持 JPG / PNG 格式</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
