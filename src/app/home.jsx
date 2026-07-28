@@ -11,7 +11,7 @@ export default function HomeScreen() {
         
         {/* ============================== 1. 沉浸式顶部头图区块 ============================== */}
         <ImageBackground
-          source={require('../images/luna_hero.png')} // 准确对应 src/images/luna_hero.png
+          source={require('../images/luna_hero.png')}
           style={styles.heroContainer}
           imageStyle={styles.heroImageStyle}
         >
@@ -26,7 +26,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* 中间留空，让背景图的角色完整展示 */}
+          {/* 中间留空，撑开高度让角色完整展示 */}
           <View style={{ flex: 1 }} />
         </ImageBackground>
 
@@ -105,7 +105,7 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.memoryCard}>
             <View style={styles.memoryContent}>
               <Text style={styles.memoryTitle}>一起去了咖啡店</Text>
-              <Text style={styles.memoryTime}>今天 10:30</Text>
+              <Text style={styles.memoryTime}>Today 10:30</Text>
             </View>
             <View style={styles.memoryIconBox}>
               <Ionicons name="image-outline" size={20} color="#A8A29E" />
@@ -128,13 +128,15 @@ const styles = StyleSheet.create({
   },
   heroContainer: {
     width: '100%',
-    height: 320,
+    height: 360, // 稍微加高头部，腾出空间展示完整的头和脸
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 50,
     justifyContent: 'space-between',
   },
   heroImageStyle: {
     resizeMode: 'cover',
+    // 让图片整体往下偏移对齐，确保露全脸和头发
+    objectPosition: 'center 20%', 
   },
   heroTopBar: {
     flexDirection: 'row',
