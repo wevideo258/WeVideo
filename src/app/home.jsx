@@ -11,7 +11,7 @@ export default function HomeScreen() {
         
         {/* ============================== 1. 沉浸式顶部头图区块 ============================== */}
         <ImageBackground
-          source={require('@/assets/images/luna_hero.png')} // 使用绝对路径别名，100% 不会出错
+          source={require('../images/luna_hero.png')} // 准确对应 src/images/luna_hero.png
           style={styles.heroContainer}
           imageStyle={styles.heroImageStyle}
         >
@@ -166,11 +166,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     marginHorizontal: 16,
-    marginTop: -30, // 稍微上浮压在背景图下方
+    marginTop: -30,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: { web: 0.08 }['web'] || 0.08,
+    shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
   },
