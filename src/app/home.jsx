@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ImageBackground, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import CustomTabBar from '../components/CustomTabBar'; // 根据你实际存放 CustomTabBar 的路径调整
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function HomeScreen() {
               <Ionicons name="sunny-outline" size={16} color="#5C4033" style={{ marginRight: 4 }} />
               <Text style={styles.weatherText}>24°C 晴朗 · 上海市</Text>
             </View>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/world')}>
               <Ionicons name="compass-outline" size={18} color="#5C4033" />
             </TouchableOpacity>
           </View>
@@ -65,32 +66,32 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* ============================== 3. 快捷菜单区块 ============================== */}
+        {/* ============================== 3. 快捷菜单区块（含完整跳转） ============================== */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>今天想和你在一起...</Text>
           <View style={styles.menuGrid}>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/nfc')}>
               <View style={styles.menuIconBox}>
                 <Ionicons name="radio-outline" size={22} color="#D4A373" />
               </View>
               <Text style={styles.menuText}>NFC连接</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/character')}>
               <View style={styles.menuIconBox}>
                 <Ionicons name="person-add-outline" size={22} color="#D4A373" />
               </View>
               <Text style={styles.menuText}>角色创建</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/marketplace')}>
               <View style={styles.menuIconBox}>
                 <Ionicons name="gift-outline" size={22} color="#D4A373" />
               </View>
               <Text style={styles.menuText}>商城礼物</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/wallet')}>
               <View style={styles.menuIconBox}>
                 <Ionicons name="shield-checkmark-outline" size={22} color="#D4A373" />
               </View>
@@ -102,7 +103,7 @@ export default function HomeScreen() {
         {/* ============================== 4. 最新记忆区块 ============================== */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>最新记忆</Text>
-          <TouchableOpacity style={styles.memoryCard}>
+          <TouchableOpacity style={styles.memoryCard} onPress={() => router.push('/chat')}>
             <View style={styles.memoryContent}>
               <Text style={styles.memoryTitle}>一起去了咖啡店</Text>
               <Text style={styles.memoryTime}>Today 10:30</Text>
@@ -114,6 +115,9 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
+
+      {/* 底部悬浮或固定的自定义 Tab 导航栏 */}
+      <CustomTabBar />
     </View>
   );
 }
@@ -124,19 +128,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDFBF7',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 90, // 底部留白，防止内容被 CustomTabBar 遮挡
   },
   heroContainer: {
     width: '100%',
-    height: 360, // 稍微加高头部，腾出空间展示完整的头和脸
+    height: 440, // 保证高度充足
     paddingHorizontal: 20,
     paddingTop: 50,
     justifyContent: 'space-between',
   },
   heroImageStyle: {
-    resizeMode: 'cover',
-    // 让图片整体往下偏移对齐，确保露全脸和头发
-    objectPosition: 'center 20%', 
+    resizeMode: 'contain', // 完美展现全脸和头发，绝对不裁切
+    width: '100%',
+    height: '100%',
   },
   heroTopBar: {
     flexDirection: 'row',
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     marginHorizontal: 16,
-    marginTop: -30,
+    marginTop: -20,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
