@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // 本地存储 Key
@@ -9,17 +9,30 @@ const CHAT_STORAGE_KEY = '@soulara_chat_history';
 
 export default function ChatScreen() {
   const router = useRouter();
+  const scrollViewRef = useRef(null);
   const [inputText, setInputText] = useState('');
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-// OpenAI 配置信息（通过 Expo 环境变量安全读取，防止代码泄漏被删）
-const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+  // OpenAI 配置信息（通过 Expo 环境变量安全读取）
+  const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
+  const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
+  // 初始化消息流（包含 PRD 要求的系统提示及初始对话）
   const [messages, setMessages] = useState([
-    { id: 1, sender: 'ai', type: 'text', text: '你好呀！我是你的 Soulara 伴侣。我已经成功接入 OpenAI 并且开启了本地历史持久化，今天想聊点什么？', time: '刚刚' }
+    { id: 1, sender: 'system', type: 'system', text: '你们相识 326 天', time: '' },
+    { id: 2, sender: 'ai', type: 'text', text: '你好呀！我是你的 Soulara 伴侣。我已经成功接入 OpenAI 并且开启了本地历史持久化，今天想聊点什么？', time: '刚刚' }
   ]);
+
+  // PRD 定义的建议回复（AI 实时生成）
+  const suggestedReplies = [
+    '今天有什么推荐的歌吗？',
+    '陪我聊会儿天吧~',
+    '等下一起去喝咖啡！'
+  ];
+
+  // 话题标签
+  const topics = ['#日常', '#思念', '#睡眠', '#工作', '#咖啡'];
 
   const tabs = [
     { name: '首页', route: '/home', icon: 'home-outline' },
@@ -58,10 +71,13 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
   const callOpenAI = async (currentMessages) => {
     setIsLoading(true);
     try {
-      const formattedMessages = currentMessages.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text || '[图片或语音消息]'
-      }));
+      // 过滤系统消息再发给大模型
+      const formattedMessages = currentMessages
+        .filter(msg => msg.sender !== 'system')
+        .map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text || '[图片或语音消息]'
+        }));
 
       const response = await fetch(OPENAI_API_URL, {
         method: 'POST',
@@ -88,7 +104,7 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
           { id: Date.now() + 1, sender: 'ai', type: 'text', text: aiReply, time: '刚刚' }
         ];
         setMessages(updatedWithAi);
-        saveChatHistory(updatedWithAi); // 持久化保存
+        saveChatHistory(updatedWithAi);
       } else {
         throw new Error(data.error?.message || '未知错误');
       }
@@ -102,19 +118,28 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
       saveChatHistory(fallbackMessages);
     } finally {
       setIsLoading(false);
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   };
 
   // 发送文字消息
-  const handleSend = () => {
-    if (!inputText.trim() || isLoading) return;
-    const newMsg = { id: Date.now(), sender: 'user', type: 'text', text: inputText, time: '刚刚' };
+  const handleSend = (textToSend) => {
+    const content = textToSend || inputText;
+    if (!content.trim() || isLoading) return;
+    
+    const newMsg = { id: Date.now(), sender: 'user', type: 'text', text: content, time: '刚刚' };
     const updatedMessages = [...messages, newMsg];
     
     setMessages(updatedMessages);
-    saveChatHistory(updatedMessages); // 持久化保存
-    setInputText('');
+    saveChatHistory(updatedMessages);
+    if (!textToSend) setInputText('');
     
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+
     callOpenAI(updatedMessages);
   };
 
@@ -160,54 +185,77 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* 顶部导航栏 */}
+      {/* 顶部导航栏与 PRD 规范的灵魂元信息条 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/home')}>
           <Ionicons name="chevron-back" size={24} color="#5C4033" />
         </TouchableOpacity>
         
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Soulara 伴侣 (持久化记忆)</Text>
-          <TouchableOpacity style={styles.statusRow}>
-            <Text style={styles.headerSub}>状态: 记忆同步中 | 等级 Lv.2</Text>
-            <Ionicons name="swap-vertical" size={12} color="#C29B75" style={{ marginLeft: 4 }} />
-          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Luna</Text>
+          <View style={styles.statusRow}>
+            <View style={styles.onlineDot} />
+            <Text style={styles.headerSub}>在线 · Lv.7 永恒 | 亲密度 68%</Text>
+          </View>
         </View>
+
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/character')}>
+          <Ionicons name="ellipsis-horizontal" size={20} color="#5C4033" />
+        </TouchableOpacity>
       </View>
 
       {/* 聊天内容滚动区域 */}
-      <ScrollView contentContainerStyle={styles.chatScroll} showsVerticalScrollIndicator={false}>
-        {messages.map((item) => (
-          <View key={item.id} style={[styles.msgRow, item.sender === 'user' ? styles.userRow : styles.aiRow]}>
-            {item.sender === 'ai' && (
-              <View style={styles.avatarCircle}>
-                <Ionicons name="sparkles" size={16} color="#D4AF37" />
+      <ScrollView 
+        ref={scrollViewRef}
+        contentContainerStyle={styles.chatScroll} 
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+      >
+        {messages.map((item) => {
+          // 系统消息类型
+          if (item.type === 'system') {
+            return (
+              <View key={item.id} style={styles.systemMsgContainer}>
+                <View style={styles.systemMsgBox}>
+                  <Text style={styles.systemMsgText}>{item.text}</Text>
+                </View>
               </View>
-            )}
-            <View style={[styles.bubble, item.sender === 'user' ? styles.userBubble : styles.aiBubble]}>
-              {item.type === 'text' && (
-                <Text style={[styles.msgText, item.sender === 'user' ? styles.userMsgText : styles.aiMsgText]}>
-                  {item.text}
+            );
+          }
+
+          const isAi = item.sender === 'ai';
+          return (
+            <View key={item.id} style={[styles.msgRow, isAi ? styles.aiRow : styles.userRow]}>
+              {isAi && (
+                <View style={styles.avatarCircle}>
+                  <Ionicons name="sparkles" size={16} color="#D4AF37" />
+                </View>
+              )}
+              <View style={[styles.bubble, isAi ? styles.aiBubble : styles.userBubble]}>
+                {item.type === 'text' && (
+                  <Text style={[styles.msgText, isAi ? styles.aiMsgText : styles.userMsgText]}>
+                    {item.text}
+                  </Text>
+                )}
+                {item.type === 'voice' && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', width: 80, justifyContent: 'space-between' }}>
+                    <Ionicons name="radio-outline" size={16} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>{item.duration}</Text>
+                  </View>
+                )}
+                {item.type === 'image' && (
+                  <View style={{ width: 140, height: 100, backgroundColor: '#FAF3EB', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="image" size={32} color="#C29B75" />
+                    <Text style={{ fontSize: 11, color: '#8C7A6B', marginTop: 4 }}>[图片已发送]</Text>
+                  </View>
+                )}
+                <Text style={[styles.timeText, isAi ? styles.aiTimeText : styles.userTimeText]}>
+                  {item.time}
                 </Text>
-              )}
-              {item.type === 'voice' && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: 80, justifyContent: 'space-between' }}>
-                  <Ionicons name="radio-outline" size={16} color="#FFFFFF" />
-                  <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>{item.duration}</Text>
-                </View>
-              )}
-              {item.type === 'image' && (
-                <View style={{ width: 140, height: 100, backgroundColor: '#FAF3EB', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-                  <Ionicons name="image" size={32} color="#C29B75" />
-                  <Text style={{ fontSize: 11, color: '#8C7A6B', marginTop: 4 }}>[图片已发送]</Text>
-                </View>
-              )}
-              <Text style={[styles.timeText, item.sender === 'user' ? styles.userTimeText : styles.aiTimeText]}>
-                {item.time}
-              </Text>
+              </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
 
         {isLoading && (
           <View style={[styles.msgRow, styles.aiRow]}>
@@ -216,50 +264,71 @@ const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
             </View>
             <View style={[styles.bubble, styles.aiBubble, { flexDirection: 'row', alignItems: 'center' }]}>
               <ActivityIndicator size="small" color="#C29B75" style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 13, color: '#8C7A6B' }}>Soulara 正在将记忆写入云端...</Text>
+              <Text style={{ fontSize: 13, color: '#8C7A6B' }}>Luna 正在思考中...</Text>
             </View>
           </View>
         )}
       </ScrollView>
 
-      {/* 底部输入框区域 */}
+      {/* 底部输入控制区（内含话题标签、建议回复、输入框） */}
       <View style={styles.inputArea}>
-        <TouchableOpacity 
-          style={[styles.actionIconBtn, isVoiceMode && { backgroundColor: '#C29B75' }]} 
-          activeOpacity={0.8}
-          onPress={() => setIsVoiceMode(!isVoiceMode)}
-        >
-          <Ionicons name={isVoiceMode ? "keypad-outline" : "mic-outline"} size={20} color={isVoiceMode ? "#FFFFFF" : "#8C7A6B"} />
-        </TouchableOpacity>
+        {/* 话题标签横滑 */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.topicsScroll}>
+          {topics.map((topic, index) => (
+            <TouchableOpacity key={index} style={styles.topicChip} onPress={() => setInputText(topic + ' ')}>
+              <Text style={styles.topicText}>{topic}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-        <TouchableOpacity style={[styles.actionIconBtn, { marginRight: 6 }]} activeOpacity={0.8} onPress={handleUploadImage}>
-          <Ionicons name="image-outline" size={20} color="#8C7A6B" />
-        </TouchableOpacity>
+        {/* 建议回复气泡 (PRD规范：AI 实时生成 3 条) */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.repliesScroll}>
+          {suggestedReplies.map((reply, index) => (
+            <TouchableOpacity key={index} style={styles.replyChip} onPress={() => handleSend(reply)}>
+              <Text style={styles.replyText}>{reply}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-        {isVoiceMode ? (
+        <View style={styles.inputRow}>
           <TouchableOpacity 
-            style={styles.voiceRecordBtn} 
-            activeOpacity={0.7}
-            onPressIn={handleSendVoice}
+            style={[styles.actionIconBtn, isVoiceMode && { backgroundColor: '#C29B75' }]} 
+            activeOpacity={0.8}
+            onPress={() => setIsVoiceMode(!isVoiceMode)}
           >
-            <Text style={styles.voiceRecordText}>按住 说话 (点击发送语音)</Text>
+            <Ionicons name={isVoiceMode ? "keypad-outline" : "mic-outline"} size={20} color={isVoiceMode ? "#FFFFFF" : "#8C7A6B"} />
           </TouchableOpacity>
-        ) : (
-          <TextInput
-            style={styles.input}
-            placeholder="和大模型 Soulara 说点什么..."
-            placeholderTextColor="#A89F91"
-            value={inputText}
-            onChangeText={setInputText}
-            editable={!isLoading}
-          />
-        )}
 
-        {!isVoiceMode && (
-          <TouchableOpacity style={[styles.sendButton, isLoading && { opacity: 0.6 }]} onPress={handleSend} activeOpacity={0.8} disabled={isLoading}>
-            <Ionicons name="arrow-up" size={18} color="#FFFFFF" />
+          <TouchableOpacity style={[styles.actionIconBtn, { marginRight: 6 }]} activeOpacity={0.8} onPress={handleUploadImage}>
+            <Ionicons name="image-outline" size={20} color="#8C7A6B" />
           </TouchableOpacity>
-        )}
+
+          {isVoiceMode ? (
+            <TouchableOpacity 
+              style={styles.voiceRecordBtn} 
+              activeOpacity={0.7}
+              onPressIn={handleSendVoice}
+            >
+              <Text style={styles.voiceRecordText}>按住 说话 (点击发送语音)</Text>
+            </TouchableOpacity>
+          ) : (
+            <TextInput
+              style={styles.input}
+              placeholder="和 Luna 说点什么..."
+              placeholderTextColor="#A89F91"
+              value={inputText}
+              onChangeText={setInputText}
+              editable={!isLoading}
+              multiline
+            />
+          )}
+
+          {!isVoiceMode && (
+            <TouchableOpacity style={[styles.sendButton, (isLoading || !inputText.trim()) && { opacity: 0.6 }]} onPress={() => handleSend()} activeOpacity={0.8} disabled={isLoading || !inputText.trim()}>
+              <Ionicons name="arrow-up" size={18} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* 底部固定 5 个核心 Tab 导航 */}
@@ -299,7 +368,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 45,
     paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingBottom: 10,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F0E6DC',
@@ -311,12 +380,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 18,
     backgroundColor: '#FAF3EB',
-    marginRight: 10,
   },
   headerTitleContainer: {
     flex: 1,
     alignItems: 'center',
-    marginRight: 46,
   },
   headerTitle: {
     fontSize: 15,
@@ -328,6 +395,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 2,
   },
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#81B29A',
+    marginRight: 4,
+  },
   headerSub: {
     fontSize: 11,
     color: '#C29B75',
@@ -335,7 +409,21 @@ const styles = StyleSheet.create({
   chatScroll: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 130,
+    paddingBottom: 200, // 避开底部复合输入栏
+  },
+  systemMsgContainer: {
+    alignItems: 'center',
+    marginVertical: 12,
+  },
+  systemMsgBox: {
+    backgroundColor: '#F0E6DC',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  systemMsgText: {
+    fontSize: 11,
+    color: '#8C7A6B',
   },
   msgRow: {
     flexDirection: 'row',
@@ -365,9 +453,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   aiBubble: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FCE7F3', // 对齐 PRD 规范的粉色气泡
     borderWidth: 1,
-    borderColor: '#F0E6DC',
+    borderColor: '#F7D4E5',
     borderBottomLeftRadius: 4,
   },
   userBubble: {
@@ -400,13 +488,51 @@ const styles = StyleSheet.create({
     bottom: 60,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F0E6DC',
+    paddingTop: 8,
+    paddingBottom: 6,
+  },
+  topicsScroll: {
+    paddingHorizontal: 12,
+    marginBottom: 6,
+  },
+  topicChip: {
+    backgroundColor: '#FAF3EB',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    borderWidth: 1,
+    borderColor: '#EFE3D5',
+  },
+  topicText: {
+    fontSize: 11,
+    color: '#5C4033',
+  },
+  repliesScroll: {
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  replyChip: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    marginRight: 8,
+  },
+  replyText: {
+    fontSize: 12,
+    color: '#C29B75',
+    fontWeight: '500',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
   },
   actionIconBtn: {
     width: 34,
@@ -424,7 +550,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF3EB',
     borderRadius: 20,
     paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingVertical: 8,
     fontSize: 14,
     color: '#5C4033',
     borderWidth: 1,
