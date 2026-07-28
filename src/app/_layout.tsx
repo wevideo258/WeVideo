@@ -17,6 +17,16 @@ export default function RootLayout() {
       <Stack.Screen name="chat" />
       <Stack.Screen name="world" />
       <Stack.Screen name="me" />
+
+      {/* 新增：商城子模块完整路由 */}
+      <Stack.Screen name="character-store" />
+      <Stack.Screen name="accessories-store" />
+      <Stack.Screen name="gift-store" />
+      <Stack.Screen name="product-detail" />
+      <Stack.Screen name="cart" />
+      <Stack.Screen name="checkout" />
+      <Stack.Screen name="payment" />
+      <Stack.Screen name="order-success" />
     </Stack>
   );
 }

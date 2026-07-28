@@ -10,10 +10,10 @@ export default function MarketplaceScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* ============================== 1. 顶部标题栏 ============================== */}
+        {/* ============================== 1. 顶部标题栏（跳转至购物车） ============================== */}
         <View style={styles.headerBar}>
           <Text style={styles.headerTitle}>Marketplace</Text>
-          <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/wallet')}>
+          <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
             <Ionicons name="cart-outline" size={20} color="#5C4033" />
           </TouchableOpacity>
         </View>
@@ -31,12 +31,12 @@ export default function MarketplaceScreen() {
           </View>
         </View>
 
-        {/* ============================== 3. 新品上线横幅卡片 ============================== */}
+        {/* ============================== 3. 新品上线横幅卡片（跳转至商品详情） ============================== */}
         <View style={styles.bannerContainer}>
           <View style={styles.bannerTextContent}>
             <Text style={styles.bannerTag}>新品上线</Text>
             <Text style={styles.bannerTitle}>Luna的探险套装</Text>
-            <TouchableOpacity style={styles.bannerButton} onPress={() => router.push('/marketplace')}>
+            <TouchableOpacity style={styles.bannerButton} onPress={() => router.push('/product-detail')}>
               <Text style={styles.bannerButtonText}>立即查看</Text>
             </TouchableOpacity>
           </View>
@@ -45,30 +45,30 @@ export default function MarketplaceScreen() {
           </View>
         </View>
 
-        {/* ============================== 4. 分类快捷导航（跳转至已存在的路由） ============================== */}
+        {/* ============================== 4. 分类快捷导航（跳转至对应真实子页面） ============================== */}
         <View style={styles.categoryGrid}>
-          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/character')}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/character-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="person-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>角色商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/marketplace')}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/accessories-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="shirt-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>配件商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/marketplace')}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/gift-store')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="gift-outline" size={20} color="#D4A373" />
             </View>
             <Text style={styles.categoryText}>礼物商城</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/nfc')}>
+          <TouchableOpacity style={styles.categoryItem} onPress={() => router.push('/product-detail')}>
             <View style={styles.categoryIconBox}>
               <Ionicons name="time-outline" size={20} color="#D4A373" />
             </View>
@@ -76,17 +76,17 @@ export default function MarketplaceScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ============================== 5. 精选推荐区块 ============================== */}
+        {/* ============================== 5. 精选推荐区块（点击跳转至商品详情） ============================== */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>精选推荐</Text>
-            <TouchableOpacity onPress={() => router.push('/marketplace')}>
+            <TouchableOpacity onPress={() => router.push('/character-store')}>
               <Text style={styles.seeMoreText}>查看全部 &gt;</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.recommendGrid}>
-            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/marketplace')}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
@@ -94,7 +94,7 @@ export default function MarketplaceScreen() {
               <Text style={styles.productPrice}>💎 1,280</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/marketplace')}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
@@ -102,7 +102,7 @@ export default function MarketplaceScreen() {
               <Text style={styles.productPrice}>💎 680</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/marketplace')}>
+            <TouchableOpacity style={styles.productCard} onPress={() => router.push('/product-detail')}>
               <View style={styles.productImageBox}>
                 <Ionicons name="image-outline" size={24} color="#A8A29E" />
               </View>
