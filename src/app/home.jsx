@@ -101,7 +101,8 @@ export default function HomeScreen() {
             {/* 最新记忆区块 */}
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>最新记忆</Text>
-              <TouchableOpacity style={styles.memoryCard} onPress={() => router.push('/chat')}>
+              {/* 已经修正为 /chatscreen，防止黑屏 */}
+              <TouchableOpacity style={styles.memoryCard} onPress={() => router.push('/chatscreen')}>
                 <View style={styles.memoryContent}>
                   <Text style={styles.memoryTitle}>一起去了咖啡店</Text>
                   <Text style={styles.memoryTime}>Today 10:30</Text>

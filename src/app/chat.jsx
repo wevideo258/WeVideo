@@ -8,15 +8,17 @@ import { calculateSoulMood } from '../engine/moodEngine';
 // 本地存储 Key
 const CHAT_STORAGE_KEY = '@soulara_chat_history';
 
-export default function ChatScreen() {
+export default function ChatScreen({ userId = "user_001" }) {
   const router = useRouter();
   const scrollViewRef = useRef(null);
-  const websocketRef = useRef(null); // 🔌 新增：WebSocket 引用，用于打断与实时流通信
+  const websocketRef = useRef(null); // 🔌 WebSocket 引用，用于打断与实时流通信
+  const audioRef = useRef(null);     // 🔊 预留音频播放引用
+  
   const [inputText, setInputText] = useState('');
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // ⚡ 新增：SCO 第一层 - 语音交互 5 态状态机 (IDLE, LISTENING, THINKING, SPEAKING, INTERRUPTED)
+  // ⚡ SCO 第一层 - 语音交互 5 态状态机 (IDLE, LISTENING, THINKING, SPEAKING, INTERRUPTED)
   const [voiceState, setVoiceState] = useState('IDLE');
 
   // 情绪状态机管理
@@ -26,10 +28,6 @@ export default function ChatScreen() {
     color: '#FFD700',
     icon: 'sparkles'
   });
-
-  // OpenAI 配置信息（通过 Expo 环境变量安全读取）
-  const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY || '';
-  const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
   // 初始化消息流
   const [messages, setMessages] = useState([
@@ -61,26 +59,54 @@ export default function ChatScreen() {
     };
   }, []);
 
-  // 🔌 新增：初始化 WebSocket 连接以支持 Barge-in 打断与流式传输
+  // 🔌 初始化 WebSocket 连接以支持与云端后端闭环交互、Barge-in 打断与流式传输
   const initWebSocketConnection = () => {
     try {
-      // ⚠️ 实际部署时请将 ws://localhost:8000 换成你的后端 WebSocket 网关地址
-      const wsUrl = process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:8000/ws/chat/user_001';
+      // 统一指向后端 WebSocket 网关（已使用 127.0.0.1 确保本地回环稳定）
+      const wsUrl = `ws://127.0.0.1:8000/ws/soulara/${userId}`;
       websocketRef.current = new WebSocket(wsUrl);
 
       websocketRef.current.onopen = () => {
-        console.log("🟢 WebSocket 实时网关连接成功");
-        setVoiceState('LISTENING');
+        console.log("[WebSocket] 已成功连接到 SoularaOS 云端网关");
+        setVoiceState('IDLE');
       };
 
-      websocketRef.current.onmessage = (event) => {
+      websocketRef.current.onmessage = async (event) => {
+        // 兼容后端发来的二进制音频流
+        if (event.data instanceof Blob) {
+          const audioUrl = URL.createObjectURL(event.data);
+          if (audioRef.current) {
+            audioRef.current.src = audioUrl;
+            audioRef.current.play();
+          }
+          setVoiceState("SPEAKING");
+          return;
+        }
+
+        // 解析后端下发的结构化 JSON 响应
         try {
           const data = JSON.parse(event.data);
-          // 响应后端下发的语音状态控制帧
-          if (data.type === 'tts_start') {
+          if (data.state === "SPEAKING" || data.status === "SPEAKING" || data.type === 'tts_start') {
             setVoiceState('SPEAKING');
-          } else if (data.type === 'tts_ended') {
-            setVoiceState('LISTENING');
+          } else if (data.state === "IDLE" || data.status === "IDLE" || data.type === 'tts_ended') {
+            setVoiceState('IDLE');
+          }
+
+          // 如果包含文本回复，将其追加到聊天记录中
+          if (data.content) {
+            const aiReplyMsg = { 
+              id: Date.now() + 1, 
+              sender: 'ai', 
+              type: 'text', 
+              text: data.content, 
+              time: '刚刚' 
+            };
+            setMessages(prev => {
+              const updated = [...prev, aiReplyMsg];
+              saveChatHistory(updated);
+              return updated;
+            });
+            setIsLoading(false);
           }
         } catch (e) {
           console.log("解析 WS 消息失败", e);
@@ -88,30 +114,28 @@ export default function ChatScreen() {
       };
 
       websocketRef.current.onerror = (error) => {
-        console.log("⚠️ WebSocket 连接异常（降级为纯 HTTP 模式）", error);
+        console.log("⚠️ WebSocket 连接异常", error);
+        setVoiceState('IDLE');
+      };
+
+      websocketRef.current.onclose = () => {
+        console.log("🔌 WebSocket 连接已断开");
+        setVoiceState('IDLE');
       };
     } catch (err) {
-      console.log("WebSocket 初始化跳过:", err);
+      console.log("WebSocket 初始化错误:", err);
     }
   };
 
-  // ⚡ 新增：SCO 第一层 - Barge-in 语音打断处理函数
+  // ⚡ SCO 第一层 - Barge-in 语音打断处理函数
   const handleBargeIn = () => {
-    console.log("⚡ 触发 Barge-in 打断机制：用户插话，立刻停止当前 TTS 播放");
-    setVoiceState('INTERRUPTED');
-
-    // 向后端发送 websocket 消息通知中断当前的 stream_session
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
       websocketRef.current.send(JSON.stringify({
-        action: "barge_in",
-        timestamp: Date.now()
+        state: "INTERRUPTED",
+        content: "[Barge-in 用户打断]"
       }));
     }
-
-    // 恢复为监听状态
-    setTimeout(() => {
-      setVoiceState('LISTENING');
-    }, 300);
+    setVoiceState('IDLE');
   };
 
   const initMoodAndHistory = async () => {
@@ -142,72 +166,8 @@ export default function ChatScreen() {
     }
   };
 
-  // 调用 OpenAI 真实大模型接口（融合当前情绪状态机）
-  const callOpenAI = async (currentMessages) => {
-    setIsLoading(true);
-    setVoiceState('THINKING'); // 🧠 状态机切换为思考中
-    try {
-      const formattedMessages = currentMessages
-        .filter(msg => msg.sender !== 'system')
-        .map(msg => ({
-          role: msg.sender === 'user' ? 'user' : 'assistant',
-          content: msg.text || '[图片或语音消息]'
-        }));
-
-      const response = await fetch(OPENAI_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY.trim()}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { 
-              role: 'system', 
-              content: `你是一个温柔、贴心的数字生命伴侣 Soulara。你目前的心情状态是【${soulMood.mood}】，表现特点为：“${soulMood.greeting}”。请在对话中自然地流露出这种情感和语调。` 
-            },
-            ...formattedMessages
-          ],
-          temperature: 0.7
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.choices && data.choices.length > 0) {
-        const aiReply = data.choices[0].message.content;
-        const updatedWithAi = [
-          ...currentMessages,
-          { id: Date.now() + 1, sender: 'ai', type: 'text', text: aiReply, time: '刚刚' }
-        ];
-        setMessages(updatedWithAi);
-        saveChatHistory(updatedWithAi);
-        setVoiceState('SPEAKING'); // 🗣️ 模拟 AI 开始说话
-      } else {
-        throw new Error(data.error?.message || '未知错误');
-      }
-    } catch (error) {
-      Alert.alert("API 请求失败", error.message || "请检查网络或密钥有效性");
-      const fallbackMessages = [
-        ...currentMessages,
-        { id: Date.now() + 1, sender: 'ai', type: 'text', text: '呜呜，刚才走神了一下没听清，能再跟我说一遍吗？', time: '刚刚' }
-      ];
-      setMessages(fallbackMessages);
-      saveChatHistory(fallbackMessages);
-      setVoiceState('LISTENING');
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-        setVoiceState('LISTENING');
-      }, 100);
-    }
-  };
-
-  // 发送文字消息
+  // 发送文字消息（严格兼容后端 5 态状态机 JSON 格式）
   const handleSend = (textToSend) => {
-    // ⚡ 如果当前 AI 正在说话，用户强行发消息则触发 Barge-in 打断
     if (voiceState === 'SPEAKING') {
       handleBargeIn();
     }
@@ -226,12 +186,25 @@ export default function ChatScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
 
-    callOpenAI(updatedMessages);
+    // 状态切换为思考中，并通过 WebSocket 发送标准的 state + content 结构给后端
+    setIsLoading(true);
+    setVoiceState('THINKING');
+
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      websocketRef.current.send(JSON.stringify({
+        state: "LISTENING", // 对应后端的 5 态状态
+        content: content
+      }));
+    } else {
+      setIsLoading(false);
+      setVoiceState('IDLE');
+      Alert.alert("连接错误", "云端 WebSocket 网关未连接，请检查后端服务");
+    }
   };
 
   const handleSendVoice = () => {
     if (voiceState === 'SPEAKING') {
-      handleBargeIn(); // ⚡ 语音插话触发打断
+      handleBargeIn();
     }
     if (isLoading) return;
     const newMsg = { id: Date.now(), sender: 'user', type: 'voice', text: '[语音消息]', duration: '03\"', time: '刚刚' };
@@ -240,7 +213,6 @@ export default function ChatScreen() {
     setMessages(updatedMessages);
     saveChatHistory(updatedMessages);
     setIsVoiceMode(false);
-    callOpenAI(updatedMessages);
   };
 
   const handleUploadImage = () => {
@@ -262,7 +234,6 @@ export default function ChatScreen() {
     
     setMessages(updatedMessages);
     saveChatHistory(updatedMessages);
-    callOpenAI(updatedMessages);
   };
 
   return (
@@ -280,9 +251,8 @@ export default function ChatScreen() {
           <Text style={styles.headerTitle}>Luna</Text>
           <View style={styles.statusRow}>
             <View style={[styles.onlineDot, { backgroundColor: soulMood.color }]} />
-            {/* 增加对当前状态机文字的柔性提示 */}
             <Text style={styles.headerSub}>
-              {voiceState === 'SPEAKING' ? '🎤 正在讲话...' : `当前心情：${soulMood.mood} · 亲密度 68%`}
+              {voiceState === 'SPEAKING' ? '🎤 正在讲话...' : voiceState === 'THINKING' ? '🧠 思考中...' : `当前心情：${soulMood.mood} · 状态: ${voiceState}`}
             </Text>
           </View>
         </View>
