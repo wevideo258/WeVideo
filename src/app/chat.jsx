@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { calculateSoulMood } from '../engine/moodEngine';
 
 // 本地存储 Key
@@ -29,13 +29,17 @@ export default function ChatScreen({ userId = "user_001" }) {
     icon: 'sparkles'
   });
 
+  // 💡 新增：情感化功能状态（记忆气泡与当前情感标签）
+  const [showMemoryBubble, setShowMemoryBubble] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   // 初始化消息流
   const [messages, setMessages] = useState([
     { id: 1, sender: 'system', type: 'system', text: '你们相识 326 天', time: '' },
     { id: 2, sender: 'ai', type: 'text', text: '加载中...', time: '刚刚' }
   ]);
 
-  // 话题标签
+  // 话题标签与快捷关怀
   const topics = ['#日常', '#思念', '#睡眠', '#工作', '#咖啡'];
   const suggestedReplies = ['今天有什么推荐的歌吗？', '陪我聊会儿天吧~', '等下一起去喝咖啡！'];
 
@@ -52,6 +56,13 @@ export default function ChatScreen({ userId = "user_001" }) {
     initMoodAndHistory();
     initWebSocketConnection();
 
+    // 渐显记忆气泡动画
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+
     return () => {
       if (websocketRef.current) {
         websocketRef.current.close();
@@ -63,7 +74,7 @@ export default function ChatScreen({ userId = "user_001" }) {
   const initWebSocketConnection = () => {
     try {
       // 统一指向后端 WebSocket 网关（已使用 127.0.0.1 确保本地回环稳定）
-      const wsUrl = `ws://127.0.0.1:8000/ws/soulara/${userId}`;
+      const wsUrl = `ws://127.0.0.1:8001/ws/soulara/${userId}`;
       websocketRef.current = new WebSocket(wsUrl);
 
       websocketRef.current.onopen = () => {
@@ -99,6 +110,7 @@ export default function ChatScreen({ userId = "user_001" }) {
               sender: 'ai', 
               type: 'text', 
               text: data.content, 
+              emotion: data.emotion || soulMood.mood,
               time: '刚刚' 
             };
             setMessages(prev => {
@@ -196,9 +208,22 @@ export default function ChatScreen({ userId = "user_001" }) {
         content: content
       }));
     } else {
-      setIsLoading(false);
-      setVoiceState('IDLE');
-      Alert.alert("连接错误", "云端 WebSocket 网关未连接，请检查后端服务");
+      // 容灾降级本地模拟回复
+      setTimeout(() => {
+        const mockReply = {
+          id: Date.now() + 1,
+          sender: 'ai',
+          type: 'text',
+          text: `哼~听到你说“${content}”了，本伴侣有认真记在心里哦！`,
+          emotion: soulMood.mood,
+          time: '刚刚'
+        };
+        const updated = [...updatedMessages, mockReply];
+        setMessages(updated);
+        saveChatHistory(updated);
+        setIsLoading(false);
+        setVoiceState('IDLE');
+      }, 1000);
     }
   };
 
@@ -262,6 +287,31 @@ export default function ChatScreen({ userId = "user_001" }) {
         </TouchableOpacity>
       </View>
 
+      {/* 💡 增强区域 1：沉浸式手办状态看板与心语飘带 */}
+      <View style={styles.renderContainer}>
+        <View style={styles.modelBox}>
+          <Ionicons name="cube" size={32} color="#C29B75" />
+          <Text style={styles.modelText}>Luna 3D 伴侣实时渲染位</Text>
+        </View>
+        <View style={styles.speechBadge}>
+          <Ionicons name="sparkles" size={12} color="#D4AF37" style={{ marginRight: 4 }} />
+          <Text style={styles.speechBadgeText}>“{soulMood.greeting}”</Text>
+        </View>
+      </View>
+
+      {/* 💡 增强区域 2：记忆气泡提示 (Memory Activation) */}
+      {showMemoryBubble && (
+        <Animated.View style={[styles.memoryCard, { opacity: fadeAnim }]}>
+          <Ionicons name="bulb" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+          <Text style={styles.memoryText} numberOfLines={1}>
+            💡 记忆唤醒：已联动半年前关于“抹茶蛋糕”的灵魂记忆档案
+          </Text>
+          <TouchableOpacity onPress={() => setShowMemoryBubble(false)}>
+            <Ionicons name="close" size={14} color="#A89F91" />
+          </TouchableOpacity>
+        </Animated.View>
+      )}
+
       {/* 聊天内容滚动区域 */}
       <ScrollView 
         ref={scrollViewRef}
@@ -306,6 +356,11 @@ export default function ChatScreen({ userId = "user_001" }) {
                     <Text style={{ fontSize: 11, color: '#8C7A6B', marginTop: 4 }}>[图片已发送]</Text>
                   </View>
                 )}
+                {isAi && item.emotion && (
+                  <View style={styles.emotionTag}>
+                    <Text style={styles.emotionTagText}>#{item.emotion}</Text>
+                  </View>
+                )}
                 <Text style={[styles.timeText, isAi ? styles.aiTimeText : styles.userTimeText]}>
                   {item.time}
                 </Text>
@@ -329,6 +384,19 @@ export default function ChatScreen({ userId = "user_001" }) {
 
       {/* 底部输入控制区 */}
       <View style={styles.inputArea}>
+        {/* 💡 增强区域 3：快捷关怀胶囊栏 (Quick Actions) */}
+        <View style={styles.quickActionContainer}>
+          <TouchableOpacity style={styles.actionChip} onPress={() => handleSend('✋ 摸摸头')}>
+            <Text style={styles.actionChipText}>✋ 摸摸头</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionChip} onPress={() => handleSend('🌙 发送早安仪式')}>
+            <Text style={styles.actionChipText}>🌙 早安仪式</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionChip} onPress={() => handleSend('🧹 今天有点烦恼，陪我清理心事')}>
+            <Text style={styles.actionChipText}>🧹 清理心事</Text>
+          </TouchableOpacity>
+        </View>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.topicsScroll}>
           {topics.map((topic, index) => (
             <TouchableOpacity key={index} style={styles.topicChip} onPress={() => setInputText(topic + ' ')}>
@@ -422,7 +490,19 @@ const styles = StyleSheet.create({
   statusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2 },
   onlineDot: { width: 6, height: 6, borderRadius: 3, marginRight: 4 },
   headerSub: { fontSize: 11, color: '#C29B75' },
-  chatScroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 200 },
+  
+  /* 💡 增强样式：顶部 3D 渲染与开场白 */
+  renderContainer: { height: 100, backgroundColor: '#FAF3EB', marginHorizontal: 16, marginTop: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#F0E6DC' },
+  modelBox: { alignItems: 'center' },
+  modelText: { fontSize: 11, color: '#8C7A6B', marginTop: 2 },
+  speechBadge: { position: 'absolute', bottom: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: '#EFE3D5' },
+  speechBadgeText: { fontSize: 11, color: '#5C4033', fontWeight: '500' },
+
+  /* 💡 增强样式：记忆唤醒气泡 */
+  memoryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFDF9', marginHorizontal: 16, marginTop: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#FCE3A7' },
+  memoryText: { flex: 1, fontSize: 11, color: '#8C7A6B' },
+
+  chatScroll: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 220 },
   systemMsgContainer: { alignItems: 'center', marginVertical: 12 },
   systemMsgBox: { backgroundColor: '#F0E6DC', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
   systemMsgText: { fontSize: 11, color: '#8C7A6B' },
@@ -436,10 +516,19 @@ const styles = StyleSheet.create({
   msgText: { fontSize: 14, lineHeight: 20 },
   aiMsgText: { color: '#4A3B32' },
   userMsgText: { color: '#FFFFFF' },
+  emotionTag: { marginTop: 4, alignSelf: 'flex-start', backgroundColor: '#FFFFFF', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#F0E6DC' },
+  emotionTagText: { fontSize: 9, color: '#D4AF37', fontWeight: '600' },
   timeText: { fontSize: 10, marginTop: 4, textAlign: 'right' },
   aiTimeText: { color: '#A89F91' },
   userTimeText: { color: '#F5ECE3' },
-  inputArea: { position: 'absolute', bottom: 60, left: 0, right: 0, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#F0E6DC', paddingTop: 8, paddingBottom: 6 },
+
+  inputArea: { position: 'absolute', bottom: 60, left: 0, right: 0, backgroundColor: '#FFFFFF', borderTopWidth: 1, borderTopColor: '#F0E6DC', paddingTop: 6, paddingBottom: 6 },
+  
+  /* 💡 增强样式：快捷关怀胶囊栏 */
+  quickActionContainer: { flexDirection: 'row', paddingHorizontal: 12, paddingBottom: 6, justifyContent: 'space-between' },
+  actionChip: { backgroundColor: '#FAF3EB', paddingVertical: 5, paddingHorizontal: 10, borderRadius: 10, borderWidth: 1, borderColor: '#EFE3D5' },
+  actionChipText: { fontSize: 11, color: '#5C4033', fontWeight: '500' },
+
   topicsScroll: { paddingHorizontal: 12, marginBottom: 6 },
   topicChip: { backgroundColor: '#FAF3EB', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginRight: 6, borderWidth: 1, borderColor: '#EFE3D5' },
   topicText: { fontSize: 11, color: '#5C4033' },

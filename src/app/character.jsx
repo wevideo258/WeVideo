@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker'; // ✅ 【修复1】补上了这一行导入
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { calculateSoulMood } from '../engine/moodEngine';
 
 export default function CharacterScreen() {
@@ -11,12 +11,15 @@ export default function CharacterScreen() {
   const [charStep, setCharStep] = useState(1);
   const [selectedStyle, setSelectedStyle] = useState('写实风');
   const [selectedSize, setSelectedSize] = useState('8cm');
-  // 新增：保存用户选中的图片 URI
+  // 保存用户选中的图片 URI
   const [selectedImage, setSelectedImage] = useState(null);
+  
+  // 新增：3D 模型生成状态与后端返回的 glb 链接
+  const [isGenerating3D, setIsGenerating3D] = useState(false);
+  const [generatedGlbUrl, setGeneratedGlbUrl] = useState(null);
 
-  // 新增：唤起相册选图的函数
+  // 唤起相册选图的函数
   const pickImage = async () => {
-    // 请求相册权限并打开相册
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -27,6 +30,47 @@ export default function CharacterScreen() {
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
       setCharStep(3); // 选择成功后自动跳到风格选择
+    }
+  };
+
+  // 新增：核心 AI 3D 管道对接函数（由步骤 02 或 03 点击下一步时触发）
+  const handleGenerate3DModel = async () => {
+    if (!selectedImage) {
+      Alert.alert("提示", "请先上传您的正面照片");
+      setCharStep(2);
+      return;
+    }
+
+    setIsGenerating3D(true);
+    try {
+      // 对接你的 FastAPI 后端 3D 生成接口（请根据你的后端实际运行地址调整，例如 http://127.0.0.1:8001）
+      const response = await fetch('http://127.0.0.1:8001/api/3d/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: "user_soulara_001",
+          image_url: selectedImage,
+          style: selectedStyle,
+          size: selectedSize
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.glb_url) {
+        setGeneratedGlbUrl(data.glb_url);
+        setCharStep(4); // 成功获取 glb 链接后进入 04 预览模型
+      } else {
+        Alert.alert("生成提示", data.detail || "云端 3D 模型生成失败，已为您启用本地默认模型渲染。");
+        setGeneratedGlbUrl("https://modelviewer.dev/shared-assets/models/Astronaut.glb");
+        setCharStep(4);
+      }
+    } catch (error) {
+      console.error("后端连接异常:", error);
+      // 容灾降级：即使后端没开，也允许用户进入预览页进行本地 MVP 体验
+      setGeneratedGlbUrl("https://modelviewer.dev/shared-assets/models/Astronaut.glb");
+      setCharStep(4);
+    } finally {
+      setIsGenerating3D(false);
     }
   };
 
@@ -47,14 +91,14 @@ export default function CharacterScreen() {
     initMood();
   }, []);
 
-  // 模拟角色档案数据（对齐 PRD-02 P13 规范）
+  // 模拟角色档案数据
   const character = {
     name: 'Luna',
     level: 7,
     title: '永恒',
     currentPoints: 56000,
     nextThreshold: 70000,
-    intimacyScore: 68, // 68% 亲密度
+    intimacyScore: 68,
   };
 
   const tabs = [
@@ -68,13 +112,13 @@ export default function CharacterScreen() {
   return (
     <View style={styles.container}>
       
-      {/* ================= 01 创建首页 (融合 P13 灵魂详情看板与情绪状态机) ================= */}
+      {/* ================= 01 创建首页 ================= */}
       {charStep === 1 && (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <Text style={styles.headerTitle}>创建与陪伴中心</Text>
           <Text style={styles.headerSub}>上传照片生成专属 3D 伴侣，或管理您的灵魂档案</Text>
 
-          {/* 今日动态心情看板 (接入 Mood Engine) */}
+          {/* 今日动态心情看板 */}
           <View style={styles.moodCard}>
             <View style={[styles.moodEmojiBox, { backgroundColor: (soulMood.color || '#FFD700') + '33' }]}>
               <Ionicons name={soulMood.icon || 'sparkles'} size={20} color={soulMood.color || '#FFD700'} />
@@ -88,14 +132,13 @@ export default function CharacterScreen() {
             </View>
           </View>
 
-          {/* 灵魂主身份与亲密度看板 (P13 规范融合) */}
+          {/* 灵魂主身份与亲密度看板 */}
           <View style={styles.mainCard}>
             <View style={styles.renderPlaceholder}>
               <Ionicons name="cube-outline" size={44} color="#C29B75" />
               <Text style={styles.renderText}>Luna 3D 模型渲染位</Text>
             </View>
 
-            {/* 等级与亲密度信息 */}
             <View style={styles.charStatusBox}>
               <View style={styles.charInfoRow}>
                 <Text style={styles.charNameText}>{character.name}</Text>
@@ -118,7 +161,7 @@ export default function CharacterScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* 四大核心陪伴入口 (对齐 PRD-02 P13 快速入口) */}
+          {/* 四大核心陪伴入口 */}
           <Text style={styles.sectionTitle}>灵魂陪伴快捷入口</Text>
           <View style={styles.quickAccessGrid}>
             <TouchableOpacity style={styles.quickCard} onPress={() => router.push('/chat')}>
@@ -185,7 +228,6 @@ export default function CharacterScreen() {
               <Text style={styles.cardSub}>正面照参考</Text>
             </View>
             
-            {/* ✅ 【修复2】已将 onPress={() => pickImage} 改为正确的 onPress={pickImage}，并顺便预览已选图片 */}
             <TouchableOpacity 
               style={[styles.mainCard, { width: '48%', height: 160, marginBottom: 0, backgroundColor: '#FAF3EB', borderStyle: 'dashed', overflow: 'hidden' }]} 
               onPress={pickImage}
@@ -242,8 +284,20 @@ export default function CharacterScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => setCharStep(4)}>
-            <Text style={styles.primaryBtnText}>下一步</Text>
+          {/* 点击下一步时触发云端 AI 3D 建模管线 */}
+          <TouchableOpacity 
+            style={[styles.primaryBtn, isGenerating3D && { backgroundColor: '#D5C2B1' }]} 
+            onPress={handleGenerate3DModel}
+            disabled={isGenerating3D}
+          >
+            {isGenerating3D ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ActivityIndicator color="#FFFFFF" size="small" style={{ marginRight: 8 }} />
+                <Text style={styles.primaryBtnText}>AI 3D 建模生成中...</Text>
+              </View>
+            ) : (
+              <Text style={styles.primaryBtnText}>生成 3D 模型</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       )}
@@ -259,6 +313,9 @@ export default function CharacterScreen() {
           <View style={[styles.mainCard, { height: 240 }]}>
             <Ionicons name="cube" size={60} color="#C29B75" />
             <Text style={styles.cardTitle}>3D 手办模型预览</Text>
+            <Text style={{ fontSize: 11, color: '#888', marginTop: 4, paddingHorizontal: 10 }} numberOfLines={1}>
+              模型源: {generatedGlbUrl || '默认模型'}
+            </Text>
             <View style={styles.rotateTag}><Ionicons name="refresh" size={12} color="#C29B75" /><Text style={{ fontSize: 10, color: '#C29B75', marginLeft: 4 }}>360°</Text></View>
           </View>
 
